@@ -1389,7 +1389,7 @@ bool CMathCounter::KeyValue(const char *szKeyName, const char *szValue)
 	//
 	if (!stricmp(szKeyName, "startvalue"))
 	{
-		m_OutValue.Init(atoi(szValue));
+		m_OutValue.Init(atof(szValue));
 		return(true);
 	}
 

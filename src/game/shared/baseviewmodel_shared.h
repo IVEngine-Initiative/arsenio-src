@@ -50,6 +50,8 @@ public:
 
 	virtual void					UpdateOnRemove( void );
 
+	void							CalcIronsights(Vector& pos, QAngle& ang);
+
 	// Weapon client handling
 	virtual void			SendViewModelMatchingSequence( int sequence );
 	virtual void			SetWeaponModel( const char *pszModelname, CBaseCombatWeapon *weapon );

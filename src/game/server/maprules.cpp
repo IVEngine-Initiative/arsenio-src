@@ -275,6 +275,9 @@ public:
 	void InputDisplay( inputdata_t &inputdata );
 	void Display( CBaseEntity *pActivator );
 
+	void InputSetText(inputdata_t& inputdata);
+	void SetText(const char* pszStr);
+
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 	{
 		Display( pActivator );
@@ -307,36 +310,11 @@ BEGIN_DATADESC( CGameText )
 
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID, "Display", InputDisplay ),
+	DEFINE_INPUTFUNC(FIELD_STRING, "SetText", InputSetText),
 
 END_DATADESC()
 
-class CGSGameText : public CGameText
-{
-public:
-	// that's right, we're inheriting from CGameText
-	DECLARE_CLASS(CGSGameText, CGameText);
-	DECLARE_DATADESC();
 
-	// this function handles the triggered input
-	void InputDisplayText(inputdata_t& inputdata);
-};
-
-// the entity is called "mm_game_text"
-LINK_ENTITY_TO_CLASS(killzone_game_text, CGSGameText);
-
-BEGIN_DATADESC(CGSGameText)
-// the parameter of the input-function is a string
-DEFINE_INPUTFUNC(FIELD_STRING, "DisplayText", InputDisplayText),
-END_DATADESC()
-
-void CGSGameText::InputDisplayText(inputdata_t& inputdata)
-{
-	// the baseclass already defines a memberfunction to set the 
-	// message-text (CGameText::MessageSet), we just call it
-	MessageSet(STRING(inputdata.value.StringID()));
-	// and show the message
-	Display(inputdata.pActivator);
-}
 
 
 
@@ -394,6 +372,35 @@ void CGameText::Display( CBaseEntity *pActivator )
 		{
 			UTIL_HudMessage( ToBasePlayer( pActivator ), m_textParms, MessageGet() );
 		}
+	}
+}
+
+void CGameText::InputSetText(inputdata_t& inputdata)
+{
+	SetText(inputdata.value.String());
+}
+
+void CGameText::SetText(const char* pszStr)
+{
+	// Replace /n with \n
+	if (Q_strstr(pszStr, "/n"))
+	{
+		CUtlStringList vecLines;
+		Q_SplitString(pszStr, "/n", vecLines);
+
+		char szMsg[512];
+		Q_strncpy(szMsg, vecLines[0], sizeof(szMsg));
+
+		for (int i = 1; i < vecLines.Count(); i++)
+		{
+			Q_strncat(szMsg, "\n", sizeof(szMsg));
+			Q_strncat(szMsg, vecLines[i], sizeof(szMsg));
+		}
+		m_iszMessage = AllocPooledString(szMsg);
+	}
+	else
+	{
+		m_iszMessage = AllocPooledString(pszStr);
 	}
 }
 

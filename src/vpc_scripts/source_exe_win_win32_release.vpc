@@ -193,7 +193,7 @@ $Configuration "Release"
 		$HeapCommitSize
 		$StackReserveSize
 		$StackCommitSize
-		$EnableLargeAddresses               "Yes (/LARGEADDRESSAWARE)"
+		$EnableLargeAddresses
 		$TerminalServer
 		$SwapRunFromCD
 		$SwapRunFromNetwork

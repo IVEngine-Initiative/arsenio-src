@@ -182,6 +182,8 @@ extern vgui::IInputInternal* g_InputInternal;
 
 #include "..\RenderSystem\rendersystem.h"
 
+#include "..\GameUI\iGameUI2.h"
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -232,6 +234,7 @@ IReplaySystem* g_pReplay = NULL;
 
 IRenderSystem* RenderSystem = nullptr;
 IGamepadUI* g_pGamepadUI = nullptr;
+IGameUI2* GameUI2 = nullptr;
 
 
 IHaptics* haptics = NULL;// NVNT haptics system interface singleton
@@ -1348,7 +1351,51 @@ void CHLClient::PostInit()
 		}
 
 
+		if (CommandLine()->FindParm("-nogameui") == 0)
+		{
+			char GameUI2Path[2048];
+			Q_snprintf(GameUI2Path, sizeof(GameUI2Path), "%s\\bin\\GameUI.dll", engine->GetGameDirectory());
 
+			CSysModule* GameUI2Module = Sys_LoadModule(GameUI2Path);
+			if (GameUI2Module != nullptr)
+			{
+				ConColorMsg(Color(0, 148, 255, 255), "Loaded GameUI.dll\n");
+				CreateInterfaceFn GameUI2Factory = Sys_GetFactory(GameUI2Module);
+				if (GameUI2Factory)
+				{
+					GameUI2 = (IGameUI2*)GameUI2Factory(GAMEUI2_DLL_INTERFACE_VERSION, NULL);
+					if (GameUI2 != nullptr)
+					{
+						ConColorMsg(Color(0, 148, 255, 255), "GameUI: Started with runtime: 995B12\n");
+
+						factorylist_t Factories;
+						FactoryList_Retrieve(Factories);
+						GameUI2->Initialize(Factories.appSystemFactory);
+						GameUI2->OnInitialize();
+					}
+					else
+					{
+						ConColorMsg(Color(0, 148, 255, 255), "Unable to pull IGameUI interface.\n");
+						Error("GameUI: Unable to pull IGameUI interface ");
+
+					}
+				}
+				else
+				{
+					ConColorMsg(Color(0, 148, 255, 255), "Unable to get GameUI factory.\n");
+					Error("GameUI: No factory! ");
+
+				}
+			}
+			else
+
+
+			{
+				ConColorMsg(Color(0, 148, 255, 255), "Unable to load GameUI.dll from:\n%s\n", GameUI2Path);
+				Error("Couldn't load Library GameUI.dll ");
+			}
+
+		} 
 
 
 
@@ -1463,7 +1510,11 @@ void CHLClient::Shutdown(void)
 		g_pGamepadUI->Shutdown();
 	}
 
-
+	if (GameUI2 != nullptr)
+	{
+		GameUI2->OnShutdown();
+		GameUI2->Shutdown();
+	}
 
 	gHUD.Shutdown();
 	VGui_Shutdown();
@@ -1573,6 +1624,8 @@ void CHLClient::HudUpdate(bool bActive)
 	if (g_pGamepadUI != nullptr)
 		g_pGamepadUI->OnUpdate(frametime);
 
+	if (GameUI2 != nullptr)
+		GameUI2->OnUpdate();
 
 }
 
@@ -1951,7 +2004,8 @@ void CHLClient::LevelInitPreEntity(char const* pMapName)
 	if (g_pGamepadUI != nullptr)
 		g_pGamepadUI->OnLevelInitializePreEntity();
 
-
+	if (GameUI2 != nullptr)
+		GameUI2->OnLevelInitializePreEntity();
 
 
 }
@@ -1975,6 +2029,8 @@ void CHLClient::LevelInitPostEntity()
 	if (g_pGamepadUI != nullptr)
 		g_pGamepadUI->OnLevelInitializePostEntity();
 
+	if (GameUI2 != nullptr)
+		GameUI2->OnLevelInitializePostEntity();
 
 
 }
@@ -2052,7 +2108,8 @@ void CHLClient::LevelShutdown(void)
 	if (g_pGamepadUI != nullptr)
 		g_pGamepadUI->OnLevelShutdown();
 
-
+	if (GameUI2 != nullptr)
+		GameUI2->OnLevelShutdown();
 
 
 	gHUD.LevelShutdown();

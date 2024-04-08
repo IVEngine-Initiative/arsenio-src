@@ -383,6 +383,39 @@ CBaseCombatWeapon *CBaseViewModel::GetOwningWeapon( void )
 	return m_hWeapon.Get();
 }
 
+void CBaseViewModel::CalcIronsights(Vector& pos, QAngle& ang)
+{
+	CBaseCombatWeapon* pWeapon = GetOwningWeapon();
+
+	if (!pWeapon)
+		return;
+
+	//get delta time for interpolation
+	float delta = (gpGlobals->curtime - pWeapon->m_flIronsightedTime) * 2.5f; //modify this value to adjust how fast the interpolation is
+	float exp = (pWeapon->IsIronsighted()) ?
+		(delta > 1.0f) ? 1.0f : delta : //normal blending
+		(delta > 1.0f) ? 0.0f : 1.0f - delta; //reverse interpolation
+
+	if (exp <= 0.001f) //fully not ironsighted; save performance
+		return;
+
+	Vector newPos = pos;
+	QAngle newAng = ang;
+
+	Vector vForward, vRight, vUp, vOffset;
+	AngleVectors(newAng, &vForward, &vRight, &vUp);
+	vOffset = pWeapon->GetIronsightPositionOffset();
+
+	newPos += vForward * vOffset.x;
+	newPos += vRight * vOffset.y;
+	newPos += vUp * vOffset.z;
+	newAng += pWeapon->GetIronsightAngleOffset();
+	//fov is handled by CBaseCombatWeapon
+
+	pos += (newPos - pos) * exp;
+	ang += (newAng - ang) * exp;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : sequence - 
@@ -454,11 +487,11 @@ void CBaseViewModel::AddViewModelBob(CBasePlayer *owner, Vector& eyePosition, QA
 float g_fMaxViewModelLag = 0.5f;
 #endif
 
-#ifdef ARSENIO_OLD
+#ifdef ARSENIO
 
 void CBaseViewModel::CalcViewModelLag(Vector& origin, QAngle& angles, QAngle& original_angles)
 {
-	CBasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
+	CBasePlayer* pPlayer = C_BasePlayer::GetLocalPlayer();
 	if (!pPlayer)
 		return;
 
@@ -501,8 +534,9 @@ void CBaseViewModel::CalcViewModelLag(Vector& origin, QAngle& angles, QAngle& or
 	angles[PITCH] += (m_angMotion[PITCH]) * flFraction;
 	angles[YAW] += (m_angMotion[YAW] * 0.66f * LAG_FLIP_FACTOR) * flFraction;
 	angles[ROLL] += (m_angCounterMotion[ROLL] * 0.5f * LAG_FLIP_FACTOR) * flFraction;
+}
 #endif
-#ifdef ARSENIO
+#ifdef ARSENIO_OLD
 	void CBaseViewModel::CalcViewModelLag(Vector & origin, QAngle & angles, QAngle & original_angles)
 	{
 		Vector vOriginalOrigin = origin;
@@ -663,7 +697,7 @@ void CBaseViewModel::CalcViewModelView(CBasePlayer *owner, const Vector& eyePosi
 	{
 		g_ClientVirtualReality.OverrideViewModelTransform(vmorigin, vmangles, pWeapon && pWeapon->ShouldUseLargeViewModelVROverride());
 	}
-
+	CalcIronsights(vmorigin, vmangles);
 	SetLocalOrigin(vmorigin);
 	SetLocalAngles(vmangles);
 

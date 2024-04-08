@@ -4620,7 +4620,7 @@ void CBasePlayer::PostThink()
 	if (gpGlobals->eLoadType != MapLoad_Background)
 	{
 #ifdef ARSENIO
-		debugoverlay->AddScreenTextOverlay(0.02f, 0.60f, 0.0f, 0, 255, 255, 255, CFmtStr("ARSENIO 2044 NOVEMBER ALPHA."));
+		debugoverlay->AddScreenTextOverlay(0.02f, 0.60f, 0.0f, 0, 255, 255, 255, CFmtStr("ARSENIO 2044 APRIL ALPHA."));
 #endif
 	}
 	if (!g_fGameOver && !m_iPlayerLocked)
@@ -4794,6 +4794,8 @@ void CBasePlayer::Touch(CBaseEntity* pOther)
 
 	SetTouchedPhysics(true);
 }
+
+
 
 //-----------------------------------------------------------------------------
 // Purpose:
@@ -6928,6 +6930,14 @@ bool CBasePlayer::ClientCommand(const CCommand& args)
 
 				JumptoPosition(origin, angle);
 			}
+
+			return true;
+		}
+		else if (stricmp(cmd, "toggle_ironsight") == 0)
+		{
+			CBaseCombatWeapon* pWeapon = GetActiveWeapon();
+			if (pWeapon != NULL)
+			pWeapon->ToggleIronsights();
 
 			return true;
 		}

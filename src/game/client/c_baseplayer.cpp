@@ -796,6 +796,7 @@ void C_BasePlayer::PreDataUpdate( DataUpdateType_t updateType )
 	BaseClass::PreDataUpdate( updateType );
 }
 
+
 //-----------------------------------------------------------------------------
 // Purpose: 
 // Input  : updateType - 
