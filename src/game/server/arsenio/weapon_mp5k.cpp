@@ -46,7 +46,19 @@ public:
 	void	AddViewKick( void );
 	void	PrimaryAttack(void);
 
-	virtual Vector	GetBulletSpread( WeaponProficiency_t proficiency );
+	virtual const Vector& GetBulletSpread(void)
+	{
+		if (m_bIsIronsighted)
+		{
+			static const Vector cone = VECTOR_CONE_1DEGREES;
+			return cone;
+		}
+		else
+		{
+			static const Vector cone = VECTOR_CONE_5DEGREES;
+			return cone;
+		}
+	}
 
 	Vector CalculateBurstAttackSpread();
 	void	BurstAttack(int burstSize, float cycleRate, int spentAmmoModifier = 1, float spreadComponentDivisor = 1.0f);
@@ -287,14 +299,7 @@ void CWeaponMP5K::PrimaryAttack(void)
 	BurstAttack( GetBurstSize(), GetBurstCycleRate(), 1, (float)GetBurstSize() );
 }
 
-Vector CWeaponMP5K::GetBulletSpread( WeaponProficiency_t proficiency )
-{
-	Vector baseSpread = CalculateBurstAttackSpread();
 
-	const WeaponProficiencyInfo_t *pProficiencyValues = GetProficiencyValues();
-	float flModifier = (pProficiencyValues)[proficiency].spreadscale;
-	return (baseSpread * flModifier);
-}
 
 //-----------------------------------------------------------------------------
 // Purpose: 

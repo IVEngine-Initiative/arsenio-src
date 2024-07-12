@@ -10,20 +10,20 @@
 #define PLATFORM_H
 
 #if defined( _X360 )
-	#define NO_STEAM
-	#define NO_VOICE
-	// for the 360, the ppc platform and the rtos are tightly coupled
-	// setup the 360 environment here !once! for much less leaf module include wackiness
-	// these are critical order and purposely appear *before* anything else
-	#define _XBOX
+#define NO_STEAM
+#define NO_VOICE
+// for the 360, the ppc platform and the rtos are tightly coupled
+// setup the 360 environment here !once! for much less leaf module include wackiness
+// these are critical order and purposely appear *before* anything else
+#define _XBOX
 #include <xtl.h>
-	#include <xaudio2.h>
-	#include <xbdm.h>
+#include <xaudio2.h>
+#include <xbdm.h>
 #include <Xgraphics.h>
-	#include <xui.h>
-	#include <pmcpbsetup.h>
+#include <xui.h>
+#include <pmcpbsetup.h>
 #include <XMAHardwareAbstraction.h>
-	#undef _XBOX
+#undef _XBOX
 #endif
 
 #include "wchartypes.h"
@@ -51,7 +51,7 @@
 // need this for _alloca
 #include <alloca.h>
 #include <unistd.h>
-	#include <signal.h>
+#include <signal.h>
 #include <time.h>
 #endif
 
@@ -83,133 +83,133 @@
 #define IsXbox()	false
 
 #ifdef _WIN32
-	#define IsLinux() false
-	#define IsOSX() false
-	#define IsPosix() false
-	#define PLATFORM_WINDOWS 1 // Windows PC or Xbox 360
-	#ifndef _X360
-		#define IsWindows() true
-		#define IsPC() true
-		#define IsConsole() false
-		#define IsX360() false
-		#define IsPS3() false
-		#define IS_WINDOWS_PC
-		#define PLATFORM_WINDOWS_PC 1 // Windows PC
-		#ifdef _WIN64
-			#define IsPlatformWindowsPC64() true
-			#define IsPlatformWindowsPC32() false
-			#define PLATFORM_WINDOWS_PC64 1
-		#else
-			#define IsPlatformWindowsPC64() false
-			#define IsPlatformWindowsPC32() true
-			#define PLATFORM_WINDOWS_PC32 1
-		#endif
-	#else
-		#define PLATFORM_X360 1
-		#ifndef _CONSOLE
-			#define _CONSOLE
-		#endif
-		#define IsWindows() false
-		#define IsPC() false
-		#define IsConsole() true
-		#define IsX360() true
-		#define IsPS3() false
-	#endif
-	// Adding IsPlatformOpenGL() to help fix a bunch of code that was using IsPosix() to infer if the DX->GL translation layer was being used.
-	#if defined( DX_TO_GL_ABSTRACTION )
-		#define IsPlatformOpenGL() true
-	#else
-		#define IsPlatformOpenGL() false
-	#endif
-#elif defined(POSIX)
-	#define IsPC() true
-	#define IsWindows() false
-	#define IsConsole() false
-	#define IsX360() false
-	#define IsPS3() false
-	#if defined( LINUX )
-		#define IsLinux() true
-	#else
-		#define IsLinux() false
-	#endif
-	
-	#if defined( OSX )
-		#define IsOSX() true
-	#else
-		#define IsOSX() false
-	#endif
-	
-	#define IsPosix() true
-	#define IsPlatformOpenGL() true
+#define IsLinux() false
+#define IsOSX() false
+#define IsPosix() false
+#define PLATFORM_WINDOWS 1 // Windows PC or Xbox 360
+#ifndef _X360
+#define IsWindows() true
+#define IsPC() true
+#define IsConsole() false
+#define IsX360() false
+#define IsPS3() false
+#define IS_WINDOWS_PC
+#define PLATFORM_WINDOWS_PC 1 // Windows PC
+#ifdef _WIN64
+#define IsPlatformWindowsPC64() true
+#define IsPlatformWindowsPC32() false
+#define PLATFORM_WINDOWS_PC64 1
 #else
-	#error
+#define IsPlatformWindowsPC64() false
+#define IsPlatformWindowsPC32() true
+#define PLATFORM_WINDOWS_PC32 1
+#endif
+#else
+#define PLATFORM_X360 1
+#ifndef _CONSOLE
+#define _CONSOLE
+#endif
+#define IsWindows() false
+#define IsPC() false
+#define IsConsole() true
+#define IsX360() true
+#define IsPS3() false
+#endif
+// Adding IsPlatformOpenGL() to help fix a bunch of code that was using IsPosix() to infer if the DX->GL translation layer was being used.
+#if defined( DX_TO_GL_ABSTRACTION )
+#define IsPlatformOpenGL() true
+#else
+#define IsPlatformOpenGL() false
+#endif
+#elif defined(POSIX)
+#define IsPC() true
+#define IsWindows() false
+#define IsConsole() false
+#define IsX360() false
+#define IsPS3() false
+#if defined( LINUX )
+#define IsLinux() true
+#else
+#define IsLinux() false
+#endif
+
+#if defined( OSX )
+#define IsOSX() true
+#else
+#define IsOSX() false
+#endif
+
+#define IsPosix() true
+#define IsPlatformOpenGL() true
+#else
+#error
 #endif
 
 typedef unsigned char uint8;
 typedef signed char int8;
 
 #if defined(__x86_64__) || defined(_WIN64)
-	#define X64BITS
+#define X64BITS
 #endif // __x86_64__
 
 #if defined( _WIN32 )
 
-	typedef __int16					int16;
-	typedef unsigned __int16		uint16;
-	typedef __int32					int32;
-	typedef unsigned __int32		uint32;
-	typedef __int64					int64;
-	typedef unsigned __int64		uint64;
+typedef __int16					int16;
+typedef unsigned __int16		uint16;
+typedef __int32					int32;
+typedef unsigned __int32		uint32;
+typedef __int64					int64;
+typedef unsigned __int64		uint64;
 
-	#ifdef PLATFORM_64BITS
-		typedef __int64 intp;				// intp is an integer that can accomodate a pointer
-		typedef unsigned __int64 uintp;		// (ie, sizeof(intp) >= sizeof(int) && sizeof(intp) >= sizeof(void *)
-	#else
-		typedef __int32 intp;
-		typedef unsigned __int32 uintp;
-	#endif
+#ifdef PLATFORM_64BITS
+typedef __int64 intp;				// intp is an integer that can accomodate a pointer
+typedef unsigned __int64 uintp;		// (ie, sizeof(intp) >= sizeof(int) && sizeof(intp) >= sizeof(void *)
+#else
+typedef __int32 intp;
+typedef unsigned __int32 uintp;
+#endif
 
-	#if defined( _X360 )
-		#ifdef __m128
-			#undef __m128
-		#endif
-		#define __m128				__vector4
-	#endif
+#if defined( _X360 )
+#ifdef __m128
+#undef __m128
+#endif
+#define __m128				__vector4
+#endif
 
-	// Use this to specify that a function is an override of a virtual function.
-	// This lets the compiler catch cases where you meant to override a virtual
-	// function but you accidentally changed the function signature and created
-	// an overloaded function. Usage in function declarations is like this:
-	// int GetData() const OVERRIDE;
-	#define OVERRIDE override
+// Use this to specify that a function is an override of a virtual function.
+// This lets the compiler catch cases where you meant to override a virtual
+// function but you accidentally changed the function signature and created
+// an overloaded function. Usage in function declarations is like this:
+// int GetData() const OVERRIDE;
+#define OVERRIDE override
 
 #else // _WIN32
 
-	typedef short					int16;
-	typedef unsigned short			uint16;
-	typedef int						int32;
-	typedef unsigned int			uint32;
-	typedef long long				int64;
-	typedef unsigned long long		uint64;
-	#ifdef X64BITS
-		typedef long long			intp;
-		typedef unsigned long long	uintp;
-	#else
-		typedef int					intp;
-		typedef unsigned int		uintp;
-	#endif
-	typedef void *HWND;
+typedef short					int16;
+typedef unsigned short			uint16;
+typedef int						int32;
+typedef unsigned int			uint32;
+typedef long long				int64;
+typedef unsigned long long		uint64;
+#ifdef X64BITS
+typedef long long			intp;
+typedef unsigned long long	uintp;
+#else
+typedef int					intp;
+typedef unsigned int		uintp;
+#endif
+typedef void* HWND;
 
-	// Avoid redefinition warnings if a previous header defines this.
-	#undef OVERRIDE
-	#if defined(__clang__)
-		#define OVERRIDE override
-		// warning: 'override' keyword is a C++11 extension [-Wc++11-extensions]
-		// Disabling this warning is less intrusive than enabling C++11 extensions
-		#pragma GCC diagnostic ignored "-Wc++11-extensions"
-	#else
-		#define OVERRIDE
-	#endif
+// Avoid redefinition warnings if a previous header defines this.
+#undef OVERRIDE
+#if defined(__clang__)
+#define OVERRIDE override
+// warning: 'override' keyword is a C++11 extension [-Wc++11-extensions]
+// Disabling this warning is less intrusive than enabling C++11 extensions
+#pragma GCC diagnostic ignored "-Wc++11-extensions"
+#else
+#define OVERRIDE
+#endif
 
 #endif // else _WIN32
 
@@ -231,13 +231,13 @@ typedef unsigned int		uint;
 // number can be obtained by looking at the compiler output when you type 'cl'
 // and removing the last two digits and the periods: 16.00.40219.01 becomes 160040219
 #if _MSC_FULL_VER > 160000000
-	#if _MSC_FULL_VER < 160040219
-		#error You must install VS 2010 SP1
-	#endif
+#if _MSC_FULL_VER < 160040219
+#error You must install VS 2010 SP1
+#endif
 #else
-	#if _MSC_FULL_VER < 140050727
-		#error You must install VS 2005 SP1
-	#endif
+#if _MSC_FULL_VER < 140050727
+#error You must install VS 2005 SP1
+#endif
 #endif
 #endif
 
@@ -260,9 +260,9 @@ typedef unsigned int		uint;
 #ifdef _MSC_VER
 	// This indicates that a function never returns, which helps with
 	// generating accurate compiler warnings
-	#define NORETURN				__declspec( noreturn )
+#define NORETURN				__declspec( noreturn )
 #else
-	#define NORETURN
+#define NORETURN
 #endif
 
 // This can be used to declare an abstract (interface only) class.
@@ -347,7 +347,7 @@ FIXME: Enable this when we no longer fear change =)
 typedef unsigned int DWORD;
 #endif
 typedef unsigned short WORD;
-typedef void * HINSTANCE;
+typedef void* HINSTANCE;
 #define _MAX_PATH PATH_MAX
 #define __cdecl
 #define __stdcall
@@ -399,27 +399,27 @@ typedef void * HINSTANCE;
 
 // C functions for external declarations that call the appropriate C++ methods
 #ifndef EXPORT
-	#ifdef _WIN32
-		#define EXPORT	_declspec( dllexport )
-	#else
-		#define EXPORT	/* */
-	#endif
+#ifdef _WIN32
+#define EXPORT	_declspec( dllexport )
+#else
+#define EXPORT	/* */
+#endif
 #endif
 
 #if defined __i386__ && !defined __linux__
-	#define id386	1
+#define id386	1
 #else
-	#define id386	0
+#define id386	0
 #endif  // __i386__
 
 // decls for aligning data
 #ifdef _WIN32
-        #define DECL_ALIGN(x) __declspec(align(x))
+#define DECL_ALIGN(x) __declspec(align(x))
 
 #elif GNUC
-	#define DECL_ALIGN(x) __attribute__((aligned(x)))
+#define DECL_ALIGN(x) __attribute__((aligned(x)))
 #else
-        #define DECL_ALIGN(x) /* */
+#define DECL_ALIGN(x) /* */
 #endif
 
 #ifdef _MSC_VER
@@ -466,17 +466,17 @@ typedef void * HINSTANCE;
 // Stack-based allocation related helpers
 //-----------------------------------------------------------------------------
 #if defined( GNUC )
-	#define stackalloc( _size )		alloca( ALIGN_VALUE( _size, 16 ) )
+#define stackalloc( _size )		alloca( ALIGN_VALUE( _size, 16 ) )
 #ifdef _LINUX
-	#define mallocsize( _p )	( malloc_usable_size( _p ) )
+#define mallocsize( _p )	( malloc_usable_size( _p ) )
 #elif defined(OSX)
-	#define mallocsize( _p )	( malloc_size( _p ) )
+#define mallocsize( _p )	( malloc_size( _p ) )
 #else
 #error
 #endif
 #elif defined ( _WIN32 )
-	#define stackalloc( _size )		_alloca( ALIGN_VALUE( _size, 16 ) )
-	#define mallocsize( _p )		( _msize( _p ) )
+#define stackalloc( _size )		_alloca( ALIGN_VALUE( _size, 16 ) )
+#define mallocsize( _p )		( _msize( _p ) )
 #endif
 
 #define  stackfree( _p )			0
@@ -484,49 +484,49 @@ typedef void * HINSTANCE;
 // Linux had a few areas where it didn't construct objects in the same order that Windows does.
 // So when CVProfile::CVProfile() would access g_pMemAlloc, it would crash because the allocator wasn't initalized yet.
 #ifdef POSIX
-	#define CONSTRUCT_EARLY __attribute__((init_priority(101)))
+#define CONSTRUCT_EARLY __attribute__((init_priority(101)))
 #else
-	#define CONSTRUCT_EARLY
-	#endif
+#define CONSTRUCT_EARLY
+#endif
 
 #if defined(_MSC_VER)
-	#define SELECTANY __declspec(selectany)
-	#define RESTRICT __restrict
-	#define RESTRICT_FUNC __declspec(restrict)
-	#define FMTFUNCTION( a, b )
+#define SELECTANY __declspec(selectany)
+#define RESTRICT __restrict
+#define RESTRICT_FUNC __declspec(restrict)
+#define FMTFUNCTION( a, b )
 #elif defined(GNUC)
-	#define SELECTANY __attribute__((weak))
-	#if defined(LINUX) && !defined(DEDICATED)
-		#define RESTRICT
-	#else
-		#define RESTRICT __restrict
-	#endif
-	#define RESTRICT_FUNC
-	// squirrel.h does a #define printf DevMsg which leads to warnings when we try
-	// to use printf as the prototype format function. Using __printf__ instead.
-	#define FMTFUNCTION( fmtargnumber, firstvarargnumber ) __attribute__ (( format( __printf__, fmtargnumber, firstvarargnumber )))
+#define SELECTANY __attribute__((weak))
+#if defined(LINUX) && !defined(DEDICATED)
+#define RESTRICT
 #else
-	#define SELECTANY static
-	#define RESTRICT
-	#define RESTRICT_FUNC
-	#define FMTFUNCTION( a, b )
+#define RESTRICT __restrict
+#endif
+#define RESTRICT_FUNC
+// squirrel.h does a #define printf DevMsg which leads to warnings when we try
+// to use printf as the prototype format function. Using __printf__ instead.
+#define FMTFUNCTION( fmtargnumber, firstvarargnumber ) __attribute__ (( format( __printf__, fmtargnumber, firstvarargnumber )))
+#else
+#define SELECTANY static
+#define RESTRICT
+#define RESTRICT_FUNC
+#define FMTFUNCTION( a, b )
 #endif
 
 #if defined( _WIN32 )
 
 	// Used for dll exporting and importing
-	#define DLL_EXPORT				extern "C" __declspec( dllexport )
-	#define DLL_IMPORT				extern "C" __declspec( dllimport )
+#define DLL_EXPORT				extern "C" __declspec( dllexport )
+#define DLL_IMPORT				extern "C" __declspec( dllimport )
 
-	// Can't use extern "C" when DLL exporting a class
-	#define DLL_CLASS_EXPORT		__declspec( dllexport )
-	#define DLL_CLASS_IMPORT		__declspec( dllimport )
+// Can't use extern "C" when DLL exporting a class
+#define DLL_CLASS_EXPORT		__declspec( dllexport )
+#define DLL_CLASS_IMPORT		__declspec( dllimport )
 
-	// Can't use extern "C" when DLL exporting a global
-	#define DLL_GLOBAL_EXPORT		extern __declspec( dllexport )
-	#define DLL_GLOBAL_IMPORT		extern __declspec( dllimport )
+// Can't use extern "C" when DLL exporting a global
+#define DLL_GLOBAL_EXPORT		extern __declspec( dllexport )
+#define DLL_GLOBAL_IMPORT		extern __declspec( dllimport )
 
-	#define DLL_LOCAL
+#define DLL_LOCAL
 
 #elif defined GNUC
 // Used for dll exporting and importing
@@ -549,30 +549,30 @@ typedef void * HINSTANCE;
 
 // Used for standard calling conventions
 #if defined( _WIN32 ) && !defined( _X360 )
-	#define  STDCALL				__stdcall
-	#define  FASTCALL				__fastcall
-	#define  FORCEINLINE			__forceinline
-	// GCC 3.4.1 has a bug in supporting forced inline of templated functions
-	// this macro lets us not force inlining in that case
-	#define  FORCEINLINE_TEMPLATE		__forceinline
+#define  STDCALL				__stdcall
+#define  FASTCALL				__fastcall
+#define  FORCEINLINE			__forceinline
+// GCC 3.4.1 has a bug in supporting forced inline of templated functions
+// this macro lets us not force inlining in that case
+#define  FORCEINLINE_TEMPLATE		__forceinline
 #elif defined( _X360 )
-	#define  STDCALL				__stdcall
-	#ifdef FORCEINLINE
-		#undef FORCEINLINE
+#define  STDCALL				__stdcall
+#ifdef FORCEINLINE
+#undef FORCEINLINE
 #endif 
-	#define  FORCEINLINE			__forceinline
-	#define  FORCEINLINE_TEMPLATE		__forceinline
-	#else
-		#define  STDCALL
-	#define  FASTCALL
-	#ifdef _LINUX_DEBUGGABLE
-		#define  FORCEINLINE
-	#else
-			#define  FORCEINLINE inline __attribute__ ((always_inline))
-		#endif
-	// GCC 3.4.1 has a bug in supporting forced inline of templated functions
-	// this macro lets us not force inlining in that case
-	#define FORCEINLINE_TEMPLATE	inline
+#define  FORCEINLINE			__forceinline
+#define  FORCEINLINE_TEMPLATE		__forceinline
+#else
+#define  STDCALL
+#define  FASTCALL
+#ifdef _LINUX_DEBUGGABLE
+#define  FORCEINLINE
+#else
+#define  FORCEINLINE inline __attribute__ ((always_inline))
+#endif
+// GCC 3.4.1 has a bug in supporting forced inline of templated functions
+// this macro lets us not force inlining in that case
+#define FORCEINLINE_TEMPLATE	inline
 //	#define  __stdcall			__attribute__ ((__stdcall__))
 #endif
 
@@ -588,9 +588,9 @@ typedef void * HINSTANCE;
 // any subsequent code in the same 'basic block' is unreachable, and thus usually
 // removed.
 #ifdef _MSC_VER
-	#define HINT(THE_HINT)	__assume((THE_HINT))
+#define HINT(THE_HINT)	__assume((THE_HINT))
 #else
-	#define HINT(THE_HINT)	0
+#define HINT(THE_HINT)	0
 #endif
 
 // Marks the codepath from here until the next branch entry point as unreachable,
@@ -639,16 +639,16 @@ typedef void * HINSTANCE;
 
 #if defined( LINUX ) && ((__GNUC__ * 100) + __GNUC_MINOR__) >= 406
   // based on some Jonathan Wakely macros on the net...
-  #define GCC_DIAG_STR(s) #s
-  #define GCC_DIAG_JOINSTR(x,y) GCC_DIAG_STR(x ## y)
-  #define GCC_DIAG_DO_PRAGMA(x) _Pragma (#x)
-  #define GCC_DIAG_PRAGMA(x)	GCC_DIAG_DO_PRAGMA(GCC diagnostic x)
+#define GCC_DIAG_STR(s) #s
+#define GCC_DIAG_JOINSTR(x,y) GCC_DIAG_STR(x ## y)
+#define GCC_DIAG_DO_PRAGMA(x) _Pragma (#x)
+#define GCC_DIAG_PRAGMA(x)	GCC_DIAG_DO_PRAGMA(GCC diagnostic x)
 
-  #define GCC_DIAG_PUSH_OFF(x)	GCC_DIAG_PRAGMA(push) GCC_DIAG_PRAGMA(ignored GCC_DIAG_JOINSTR(-W,x))
-  #define GCC_DIAG_POP()		GCC_DIAG_PRAGMA(pop)
+#define GCC_DIAG_PUSH_OFF(x)	GCC_DIAG_PRAGMA(push) GCC_DIAG_PRAGMA(ignored GCC_DIAG_JOINSTR(-W,x))
+#define GCC_DIAG_POP()		GCC_DIAG_PRAGMA(pop)
 #else
-  #define GCC_DIAG_PUSH_OFF(x)
-  #define GCC_DIAG_POP()
+#define GCC_DIAG_PUSH_OFF(x)
+#define GCC_DIAG_POP()
 #endif
 
 #ifdef LINUX
@@ -701,10 +701,30 @@ typedef void * HINSTANCE;
 #define _wtoi64(arg) wcstoll(arg, NULL, 10)
 
 typedef uint32 HMODULE;
-typedef void *HANDLE;
+typedef void* HANDLE;
 #endif
 
+//-----------------------------------------------------------------------------
+// fsel
+//-----------------------------------------------------------------------------
+#ifndef _X360
 
+static FORCEINLINE float fsel(float fComparand, float fValGE, float fLT)
+{
+	return fComparand >= 0 ? fValGE : fLT;
+}
+static FORCEINLINE double fsel(double fComparand, double fValGE, double fLT)
+{
+	return fComparand >= 0 ? fValGE : fLT;
+}
+
+#else
+
+// __fsel(double fComparand, double fValGE, double fLT) == fComparand >= 0 ? fValGE : fLT
+// this is much faster than if ( aFloat > 0 ) { x = .. }
+#define fsel __fsel
+
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -715,94 +735,94 @@ typedef void *HANDLE;
 #if !defined( _X360 )
 #if defined( _MSC_VER )
 
-	#if defined( PLATFORM_WINDOWS_PC64 )
-		inline void SetupFPUControlWord()
-		{
-		}
-	#else
-		inline void SetupFPUControlWordForceExceptions()
-		{
-			// use local to get and store control word
-			uint16 tmpCtrlW;
-			__asm
-			{
-				fnclex						/* clear all current exceptions */
-				fnstcw word ptr [tmpCtrlW]	/* get current control word */
-				and [tmpCtrlW], 0FCC0h		/* Keep infinity control + rounding control */
-				or [tmpCtrlW], 0230h		/* set to 53-bit, mask only inexact, underflow */
-				fldcw word ptr [tmpCtrlW]	/* put new control word in FPU */
-			}
-		}
+#if defined( PLATFORM_WINDOWS_PC64 )
+inline void SetupFPUControlWord()
+{
+}
+#else
+inline void SetupFPUControlWordForceExceptions()
+{
+	// use local to get and store control word
+	uint16 tmpCtrlW;
+	__asm
+	{
+		fnclex						/* clear all current exceptions */
+		fnstcw word ptr[tmpCtrlW]	/* get current control word */
+		and [tmpCtrlW], 0FCC0h		/* Keep infinity control + rounding control */
+		or [tmpCtrlW], 0230h		/* set to 53-bit, mask only inexact, underflow */
+		fldcw word ptr[tmpCtrlW]	/* put new control word in FPU */
+	}
+}
 
-		#ifdef CHECK_FLOAT_EXCEPTIONS
+#ifdef CHECK_FLOAT_EXCEPTIONS
 
-			inline void SetupFPUControlWord()
-			{
-				SetupFPUControlWordForceExceptions();
-			}
-
-		#else
-
-			inline void SetupFPUControlWord()
-			{
-				// use local to get and store control word
-				uint16 tmpCtrlW;
-				__asm
-				{
-					fnstcw word ptr [tmpCtrlW]	/* get current control word */
-					and [tmpCtrlW], 0FCC0h		/* Keep infinity control + rounding control */
-					or [tmpCtrlW], 023Fh		/* set to 53-bit, mask only inexact, underflow */
-					fldcw word ptr [tmpCtrlW]	/* put new control word in FPU */
-				}
-			}
-
-		#endif
-	#endif
+inline void SetupFPUControlWord()
+{
+	SetupFPUControlWordForceExceptions();
+}
 
 #else
 
-	inline void SetupFPUControlWord()
+inline void SetupFPUControlWord()
+{
+	// use local to get and store control word
+	uint16 tmpCtrlW;
+	__asm
 	{
-		__volatile unsigned short int __cw;
-		__asm __volatile ("fnstcw %0" : "=m" (__cw));
-		__cw = __cw & 0x0FCC0;	// keep infinity control, keep rounding mode
-		__cw = __cw | 0x023F;	// set 53-bit, no exceptions
-		__asm __volatile ("fldcw %0" : : "m" (__cw));
+		fnstcw word ptr[tmpCtrlW]	/* get current control word */
+		and [tmpCtrlW], 0FCC0h		/* Keep infinity control + rounding control */
+		or [tmpCtrlW], 023Fh		/* set to 53-bit, mask only inexact, underflow */
+		fldcw word ptr[tmpCtrlW]	/* put new control word in FPU */
 	}
+}
+
+#endif
+#endif
+
+#else
+
+inline void SetupFPUControlWord()
+{
+	__volatile unsigned short int __cw;
+	__asm __volatile("fnstcw %0" : "=m" (__cw));
+	__cw = __cw & 0x0FCC0;	// keep infinity control, keep rounding mode
+	__cw = __cw | 0x023F;	// set 53-bit, no exceptions
+	__asm __volatile("fldcw %0" : : "m" (__cw));
+}
 
 #endif // _MSC_VER
 
 #else
 
-	#ifdef _DEBUG
-		FORCEINLINE bool IsFPUControlWordSet()
-		{
-			float f = 0.996f;
-			union
-			{
-				double flResult;
-				int pResult[2];
-			};
-			flResult = __fctiw( f );
-			return ( pResult[1] == 1 );
-		}
-	#endif
-
-	inline void SetupFPUControlWord()
+#ifdef _DEBUG
+FORCEINLINE bool IsFPUControlWordSet()
+{
+	float f = 0.996f;
+	union
 	{
-		// Set round-to-nearest in FPSCR
-		// (cannot assemble, must use op-code form)
-		__emit( 0xFF80010C );	// mtfsfi  7,0
+		double flResult;
+		int pResult[2];
+	};
+	flResult = __fctiw(f);
+	return (pResult[1] == 1);
+}
+#endif
 
-		// Favour compatibility over speed (make sure the VPU set to Java-compliant mode)
-		// NOTE: the VPU *always* uses round-to-nearest
-			__vector4  a = { 0.0f, 0.0f, 0.0f, 0.0f };
-			a;				//	Avoid compiler warning
-			__asm
-		{
-			mtvscr a;	// Clear the Vector Status & Control Register to zero
-		}
+inline void SetupFPUControlWord()
+{
+	// Set round-to-nearest in FPSCR
+	// (cannot assemble, must use op-code form)
+	__emit(0xFF80010C);	// mtfsfi  7,0
+
+	// Favour compatibility over speed (make sure the VPU set to Java-compliant mode)
+	// NOTE: the VPU *always* uses round-to-nearest
+	__vector4  a = { 0.0f, 0.0f, 0.0f, 0.0f };
+	a;				//	Avoid compiler warning
+	__asm
+	{
+		mtvscr a;	// Clear the Vector Status & Control Register to zero
 	}
+}
 
 #endif // _X360
 
@@ -815,47 +835,47 @@ typedef void *HANDLE;
 //-------------------------------------
 
 template <typename T>
-inline T WordSwapC( T w )
+inline T WordSwapC(T w)
 {
-   uint16 temp;
+	uint16 temp;
 
-   temp  = ((*((uint16 *)&w) & 0xff00) >> 8);
-   temp |= ((*((uint16 *)&w) & 0x00ff) << 8);
+	temp = ((*((uint16*)&w) & 0xff00) >> 8);
+	temp |= ((*((uint16*)&w) & 0x00ff) << 8);
 
-   return *((T*)&temp);
+	return *((T*)&temp);
 }
 
 template <typename T>
-inline T DWordSwapC( T dw )
+inline T DWordSwapC(T dw)
 {
-   uint32 temp;
+	uint32 temp;
 
-   temp  =   *((uint32 *)&dw) 				>> 24;
-   temp |= ((*((uint32 *)&dw) & 0x00FF0000) >> 8);
-   temp |= ((*((uint32 *)&dw) & 0x0000FF00) << 8);
-   temp |= ((*((uint32 *)&dw) & 0x000000FF) << 24);
+	temp = *((uint32*)&dw) >> 24;
+	temp |= ((*((uint32*)&dw) & 0x00FF0000) >> 8);
+	temp |= ((*((uint32*)&dw) & 0x0000FF00) << 8);
+	temp |= ((*((uint32*)&dw) & 0x000000FF) << 24);
 
-   return *((T*)&temp);
+	return *((T*)&temp);
 }
 
 template <typename T>
-inline T QWordSwapC( T dw )
+inline T QWordSwapC(T dw)
 {
 	// Assert sizes passed to this are already correct, otherwise
 	// the cast to uint64 * below is unsafe and may have wrong results 
 	// or even crash.
-	PLAT_COMPILE_TIME_ASSERT( sizeof( dw ) == sizeof(uint64) );
+	PLAT_COMPILE_TIME_ASSERT(sizeof(dw) == sizeof(uint64));
 
 	uint64 temp;
 
-	temp  =   *((uint64 *)&dw) 				         >> 56;
-	temp |= ((*((uint64 *)&dw) & 0x00FF000000000000ull) >> 40);
-	temp |= ((*((uint64 *)&dw) & 0x0000FF0000000000ull) >> 24);
-	temp |= ((*((uint64 *)&dw) & 0x000000FF00000000ull) >> 8);
-	temp |= ((*((uint64 *)&dw) & 0x00000000FF000000ull) << 8);
-	temp |= ((*((uint64 *)&dw) & 0x0000000000FF0000ull) << 24);
-	temp |= ((*((uint64 *)&dw) & 0x000000000000FF00ull) << 40);
-	temp |= ((*((uint64 *)&dw) & 0x00000000000000FFull) << 56);
+	temp = *((uint64*)&dw) >> 56;
+	temp |= ((*((uint64*)&dw) & 0x00FF000000000000ull) >> 40);
+	temp |= ((*((uint64*)&dw) & 0x0000FF0000000000ull) >> 24);
+	temp |= ((*((uint64*)&dw) & 0x000000FF00000000ull) >> 8);
+	temp |= ((*((uint64*)&dw) & 0x00000000FF000000ull) << 8);
+	temp |= ((*((uint64*)&dw) & 0x0000000000FF0000ull) << 24);
+	temp |= ((*((uint64*)&dw) & 0x000000000000FF00ull) << 40);
+	temp |= ((*((uint64*)&dw) & 0x00000000000000FFull) << 56);
 
 	return *((T*)&temp);
 }
@@ -866,59 +886,59 @@ inline T QWordSwapC( T dw )
 
 #if defined( _X360 )
 
-	#define WordSwap  WordSwap360Intr
-	#define DWordSwap DWordSwap360Intr
+#define WordSwap  WordSwap360Intr
+#define DWordSwap DWordSwap360Intr
 
-	template <typename T>
-	inline T WordSwap360Intr( T w )
-	{
-		T output;
-		__storeshortbytereverse( w, 0, &output );
-		return output;
-	}
+template <typename T>
+inline T WordSwap360Intr(T w)
+{
+	T output;
+	__storeshortbytereverse(w, 0, &output);
+	return output;
+}
 
-	template <typename T>
-	inline T DWordSwap360Intr( T dw )
-	{
-		T output;
-		__storewordbytereverse( dw, 0, &output );
-		return output;
-	}
+template <typename T>
+inline T DWordSwap360Intr(T dw)
+{
+	T output;
+	__storewordbytereverse(dw, 0, &output);
+	return output;
+}
 
 #elif defined( _MSC_VER ) && !defined( PLATFORM_WINDOWS_PC64 )
 
-	#define WordSwap  WordSwapAsm
-	#define DWordSwap DWordSwapAsm
+#define WordSwap  WordSwapAsm
+#define DWordSwap DWordSwapAsm
 
-	#pragma warning(push)
-	#pragma warning (disable:4035) // no return value
+#pragma warning(push)
+#pragma warning (disable:4035) // no return value
 
-	template <typename T>
-	inline T WordSwapAsm( T w )
+template <typename T>
+inline T WordSwapAsm(T w)
+{
+	__asm
 	{
-	   __asm
-	   {
-		  mov ax, w
-		  xchg al, ah
-	   }
+		mov ax, w
+		xchg al, ah
 	}
+}
 
-	template <typename T>
-	inline T DWordSwapAsm( T dw )
+template <typename T>
+inline T DWordSwapAsm(T dw)
+{
+	__asm
 	{
-	   __asm
-	   {
-		  mov eax, dw
-		  bswap eax
-	   }
+		mov eax, dw
+		bswap eax
 	}
+}
 
-	#pragma warning(pop)
+#pragma warning(pop)
 
 #else
 
-	#define WordSwap  WordSwapC
-	#define DWordSwap DWordSwapC
+#define WordSwap  WordSwapC
+#define DWordSwap DWordSwapC
 
 #endif
 
@@ -988,47 +1008,47 @@ inline T QWordSwapC( T dw )
 // @Note (toml 05-02-02): this technique expects the compiler to
 // optimize the expression and eliminate the other path. On any new
 // platform/compiler this should be tested.
-inline short BigShort( short val )		{ int test = 1; return ( *(char *)&test == 1 ) ? WordSwap( val )  : val; }
-inline uint16 BigWord( uint16 val )		{ int test = 1; return ( *(char *)&test == 1 ) ? WordSwap( val )  : val; }
-inline long BigLong( long val )			{ int test = 1; return ( *(char *)&test == 1 ) ? DWordSwap( val ) : val; }
-inline uint32 BigDWord( uint32 val )	{ int test = 1; return ( *(char *)&test == 1 ) ? DWordSwap( val ) : val; }
-inline short LittleShort( short val )	{ int test = 1; return ( *(char *)&test == 1 ) ? val : WordSwap( val ); }
-inline uint16 LittleWord( uint16 val )	{ int test = 1; return ( *(char *)&test == 1 ) ? val : WordSwap( val ); }
-inline long LittleLong( long val )		{ int test = 1; return ( *(char *)&test == 1 ) ? val : DWordSwap( val ); }
-inline uint32 LittleDWord( uint32 val )	{ int test = 1; return ( *(char *)&test == 1 ) ? val : DWordSwap( val ); }
-inline uint64 LittleQWord( uint64 val )	{ int test = 1; return ( *(char *)&test == 1 ) ? val : QWordSwap( val ); }
-inline short SwapShort( short val )					{ return WordSwap( val ); }
-inline uint16 SwapWord( uint16 val )				{ return WordSwap( val ); }
-inline long SwapLong( long val )					{ return DWordSwap( val ); }
-inline uint32 SwapDWord( uint32 val )				{ return DWordSwap( val ); }
+inline short BigShort(short val) { int test = 1; return (*(char*)&test == 1) ? WordSwap(val) : val; }
+inline uint16 BigWord(uint16 val) { int test = 1; return (*(char*)&test == 1) ? WordSwap(val) : val; }
+inline long BigLong(long val) { int test = 1; return (*(char*)&test == 1) ? DWordSwap(val) : val; }
+inline uint32 BigDWord(uint32 val) { int test = 1; return (*(char*)&test == 1) ? DWordSwap(val) : val; }
+inline short LittleShort(short val) { int test = 1; return (*(char*)&test == 1) ? val : WordSwap(val); }
+inline uint16 LittleWord(uint16 val) { int test = 1; return (*(char*)&test == 1) ? val : WordSwap(val); }
+inline long LittleLong(long val) { int test = 1; return (*(char*)&test == 1) ? val : DWordSwap(val); }
+inline uint32 LittleDWord(uint32 val) { int test = 1; return (*(char*)&test == 1) ? val : DWordSwap(val); }
+inline uint64 LittleQWord(uint64 val) { int test = 1; return (*(char*)&test == 1) ? val : QWordSwap(val); }
+inline short SwapShort(short val) { return WordSwap(val); }
+inline uint16 SwapWord(uint16 val) { return WordSwap(val); }
+inline long SwapLong(long val) { return DWordSwap(val); }
+inline uint32 SwapDWord(uint32 val) { return DWordSwap(val); }
 
 // Pass floats by pointer for swapping to avoid truncation in the fpu
-inline void BigFloat( float *pOut, const float *pIn )		{ int test = 1; ( *(char *)&test == 1 ) ? SafeSwapFloat( pOut, pIn ) : ( *pOut = *pIn ); }
-inline void LittleFloat( float *pOut, const float *pIn )	{ int test = 1; ( *(char *)&test == 1 ) ? ( *pOut = *pIn ) : SafeSwapFloat( pOut, pIn ); }
-inline void SwapFloat( float *pOut, const float *pIn )		{ SafeSwapFloat( pOut, pIn ); }
+inline void BigFloat(float* pOut, const float* pIn) { int test = 1; (*(char*)&test == 1) ? SafeSwapFloat(pOut, pIn) : (*pOut = *pIn); }
+inline void LittleFloat(float* pOut, const float* pIn) { int test = 1; (*(char*)&test == 1) ? (*pOut = *pIn) : SafeSwapFloat(pOut, pIn); }
+inline void SwapFloat(float* pOut, const float* pIn) { SafeSwapFloat(pOut, pIn); }
 
 #endif
 
 #if _X360
-FORCEINLINE unsigned long LoadLittleDWord( const unsigned long *base, unsigned int dwordIndex )
-		{
-			return __loadwordbytereverse( dwordIndex<<2, base );
-		}
+FORCEINLINE unsigned long LoadLittleDWord(const unsigned long* base, unsigned int dwordIndex)
+{
+	return __loadwordbytereverse(dwordIndex << 2, base);
+}
 
-FORCEINLINE void StoreLittleDWord( unsigned long *base, unsigned int dwordIndex, unsigned long dword )
-		{
-			__storewordbytereverse( dword, dwordIndex<<2, base );
-		}
+FORCEINLINE void StoreLittleDWord(unsigned long* base, unsigned int dwordIndex, unsigned long dword)
+{
+	__storewordbytereverse(dword, dwordIndex << 2, base);
+}
 #else
-FORCEINLINE unsigned long LoadLittleDWord( const unsigned long *base, unsigned int dwordIndex )
-	{
-		return LittleDWord( base[dwordIndex] );
-	}
+FORCEINLINE unsigned long LoadLittleDWord(const unsigned long* base, unsigned int dwordIndex)
+{
+	return LittleDWord(base[dwordIndex]);
+}
 
-FORCEINLINE void StoreLittleDWord( unsigned long *base, unsigned int dwordIndex, unsigned long dword )
-	{
-		base[dwordIndex] = LittleDWord(dword);
-	}
+FORCEINLINE void StoreLittleDWord(unsigned long* base, unsigned int dwordIndex, unsigned long dword)
+{
+	base[dwordIndex] = LittleDWord(dword);
+}
 #endif
 
 
@@ -1060,46 +1080,46 @@ FORCEINLINE void StoreLittleDWord( unsigned long *base, unsigned int dwordIndex,
 //
 // It should not be changed after startup unless you really know what you're doing. The only place
 // that should do this is the benchmark code itself so it can output a legit duration.
-PLATFORM_INTERFACE void				Plat_SetBenchmarkMode( bool bBenchmarkMode );	
+PLATFORM_INTERFACE void				Plat_SetBenchmarkMode(bool bBenchmarkMode);
 PLATFORM_INTERFACE bool				Plat_IsInBenchmarkMode();
 
 
 PLATFORM_INTERFACE double			Plat_FloatTime();		// Returns time in seconds since the module was loaded.
 PLATFORM_INTERFACE unsigned int		Plat_MSTime();			// Time in milliseconds.
-PLATFORM_INTERFACE char *			Plat_asctime( const struct tm *tm, char *buf );
-PLATFORM_INTERFACE char *			Plat_ctime( const time_t *timep, char *buf, size_t bufsize );
-PLATFORM_INTERFACE struct tm *		Plat_gmtime( const time_t *timep, struct tm *result );
-PLATFORM_INTERFACE time_t			Plat_timegm( struct tm *timeptr );
-PLATFORM_INTERFACE struct tm *		Plat_localtime( const time_t *timep, struct tm *result );
+PLATFORM_INTERFACE char* Plat_asctime(const struct tm* tm, char* buf);
+PLATFORM_INTERFACE char* Plat_ctime(const time_t* timep, char* buf, size_t bufsize);
+PLATFORM_INTERFACE struct tm* Plat_gmtime(const time_t* timep, struct tm* result);
+PLATFORM_INTERFACE time_t			Plat_timegm(struct tm* timeptr);
+PLATFORM_INTERFACE struct tm* Plat_localtime(const time_t* timep, struct tm* result);
 
 #if defined( _WIN32 ) && defined( _MSC_VER ) && ( _MSC_VER >= 1400 )
-	extern "C" unsigned __int64 __rdtsc();
-	#pragma intrinsic(__rdtsc)
+extern "C" unsigned __int64 __rdtsc();
+#pragma intrinsic(__rdtsc)
 #endif
 
 inline uint64 Plat_Rdtsc()
 {
 #if defined( _X360 )
-	return ( uint64 )__mftb32();
+	return (uint64)__mftb32();
 #elif defined( _WIN64 )
-	return ( uint64 )__rdtsc();
+	return (uint64)__rdtsc();
 #elif defined( _WIN32 )
-  #if defined( _MSC_VER ) && ( _MSC_VER >= 1400 )
-	return ( uint64 )__rdtsc();
-  #else
-    __asm rdtsc;
+#if defined( _MSC_VER ) && ( _MSC_VER >= 1400 )
+	return (uint64)__rdtsc();
+#else
+	__asm rdtsc;
 	__asm ret;
-  #endif
+#endif
 #elif defined( __i386__ )
 	uint64 val;
-	__asm__ __volatile__ ( "rdtsc" : "=A" (val) );
+	__asm__ __volatile__("rdtsc" : "=A" (val));
 	return val;
 #elif defined( __x86_64__ )
 	uint32 lo, hi;
-	__asm__ __volatile__ ( "rdtsc" : "=a" (lo), "=d" (hi));
-	return ( ( ( uint64 )hi ) << 32 ) | lo;
+	__asm__ __volatile__("rdtsc" : "=a" (lo), "=d" (hi));
+	return (((uint64)hi) << 32) | lo;
 #else
-	#error
+#error
 #endif
 }
 
@@ -1120,35 +1140,35 @@ inline uint64 Plat_Rdtsc()
 			memcpy( this, &src, sizeof(_classname) );	\
 			return *this;								\
 		}
-	
+
 // Processor Information:
 struct CPUInformation
 {
 	int	 m_Size;		// Size of this structure, for forward compatability.
 
 	bool m_bRDTSC : 1,	// Is RDTSC supported?
-		 m_bCMOV  : 1,  // Is CMOV supported?
-		 m_bFCMOV : 1,  // Is FCMOV supported?
-		 m_bSSE	  : 1,	// Is SSE supported?
-		 m_bSSE2  : 1,	// Is SSE2 Supported?
-		 m_b3DNow : 1,	// Is 3DNow! Supported?
-		 m_bMMX   : 1,	// Is MMX supported?
-		 m_bHT	  : 1;	// Is HyperThreading supported?
+		m_bCMOV : 1,  // Is CMOV supported?
+		m_bFCMOV : 1,  // Is FCMOV supported?
+		m_bSSE : 1,	// Is SSE supported?
+		m_bSSE2 : 1,	// Is SSE2 Supported?
+		m_b3DNow : 1,	// Is 3DNow! Supported?
+		m_bMMX : 1,	// Is MMX supported?
+		m_bHT : 1;	// Is HyperThreading supported?
 
 	uint8 m_nLogicalProcessors;		// Number op logical processors.
 	uint8 m_nPhysicalProcessors;	// Number of physical processors
-	
+
 	bool m_bSSE3 : 1,
-		 m_bSSSE3 : 1,
-		 m_bSSE4a : 1,
-		 m_bSSE41 : 1,
-		 m_bSSE42 : 1;	
+		m_bSSSE3 : 1,
+		m_bSSE4a : 1,
+		m_bSSE41 : 1,
+		m_bSSE42 : 1;
 
 	int64 m_Speed;						// In cycles per second.
 
 	tchar* m_szProcessorID;				// Processor vendor Identification.
 
-	CPUInformation(): m_Size(0){}
+	CPUInformation() : m_Size(0) {}
 };
 
 // Have to return a pointer, not a reference, because references are not compatible with the
@@ -1157,7 +1177,7 @@ PLATFORM_INTERFACE const CPUInformation* GetCPUInformation();
 
 PLATFORM_INTERFACE float GetCPUUsage();
 
-PLATFORM_INTERFACE void GetCurrentDate( int *pDay, int *pMonth, int *pYear );
+PLATFORM_INTERFACE void GetCurrentDate(int* pDay, int* pMonth, int* pYear);
 
 // ---------------------------------------------------------------------------------- //
 // Performance Monitoring Events - L2 stats etc...
@@ -1171,20 +1191,20 @@ PLATFORM_INTERFACE void ShutdownPME();
 
 // Sets a hardware data breakpoint on the given address. Currently Win32-only.
 // Specify 1, 2, or 4 bytes for nWatchBytes; pass 0 to unregister the address.
-PLATFORM_INTERFACE void	Plat_SetHardwareDataBreakpoint( const void *pAddress, int nWatchBytes, bool bBreakOnRead );
+PLATFORM_INTERFACE void	Plat_SetHardwareDataBreakpoint(const void* pAddress, int nWatchBytes, bool bBreakOnRead);
 
 // Apply current hardware data breakpoints to a newly created thread.
-PLATFORM_INTERFACE void	Plat_ApplyHardwareDataBreakpointsToNewThread( unsigned long dwThreadID );
+PLATFORM_INTERFACE void	Plat_ApplyHardwareDataBreakpointsToNewThread(unsigned long dwThreadID);
 
 //-----------------------------------------------------------------------------
 // Process related functions
 //-----------------------------------------------------------------------------
-PLATFORM_INTERFACE const tchar *Plat_GetCommandLine();
+PLATFORM_INTERFACE const tchar* Plat_GetCommandLine();
 #ifndef _WIN32
 // helper function for OS's that don't have a ::GetCommandLine() call
-PLATFORM_INTERFACE void Plat_SetCommandLine( const char *cmdLine );
+PLATFORM_INTERFACE void Plat_SetCommandLine(const char* cmdLine);
 #endif
-PLATFORM_INTERFACE const char *Plat_GetCommandLineA();
+PLATFORM_INTERFACE const char* Plat_GetCommandLineA();
 
 //-----------------------------------------------------------------------------
 // Security related functions
@@ -1210,7 +1230,7 @@ PLATFORM_INTERFACE bool Plat_FastVerifyHardwareKey();
 //-----------------------------------------------------------------------------
 // Just logs file and line to simple.log
 //-----------------------------------------------------------------------------
-PLATFORM_INTERFACE void* Plat_SimpleLog( const tchar* file, int line );
+PLATFORM_INTERFACE void* Plat_SimpleLog(const tchar* file, int line);
 
 #if _X360
 #define Plat_FastMemset XMemSet
@@ -1224,10 +1244,10 @@ PLATFORM_INTERFACE void* Plat_SimpleLog( const tchar* file, int line );
 // Returns true if debugger attached, false otherwise
 //-----------------------------------------------------------------------------
 #if defined(_WIN32) || defined(LINUX) || defined(OSX)
-PLATFORM_INTERFACE bool Plat_IsInDebugSession( bool bForceRecheck = false );
-PLATFORM_INTERFACE void Plat_DebugString( const char * );
+PLATFORM_INTERFACE bool Plat_IsInDebugSession(bool bForceRecheck = false);
+PLATFORM_INTERFACE void Plat_DebugString(const char*);
 #else
-inline bool Plat_IsInDebugSession( bool bForceRecheck = false ) { return false; }
+inline bool Plat_IsInDebugSession(bool bForceRecheck = false) { return false; }
 #define Plat_DebugString(s) ((void)0)
 #endif
 
@@ -1271,7 +1291,7 @@ PLATFORM_INTERFACE bool Is64BitOS();
 #define WM_XMP_PLAYBACKBEHAVIORCHANGED		(WM_USER + 122)
 #define WM_XMP_PLAYBACKCONTROLLERCHANGED	(WM_USER + 123)
 
-inline const char *GetPlatformExt( void )
+inline const char* GetPlatformExt(void)
 {
 	return IsX360() ? ".360" : "";
 }
@@ -1306,72 +1326,72 @@ inline const char *GetPlatformExt( void )
 //-----------------------------------------------------------------------------
 
 template <class T>
-inline T* Construct( T* pMemory )
+inline T* Construct(T* pMemory)
 {
-	return ::new( pMemory ) T;
+	return ::new(pMemory) T;
 }
 
 template <class T, typename ARG1>
-inline T* Construct( T* pMemory, ARG1 a1 )
+inline T* Construct(T* pMemory, ARG1 a1)
 {
-	return ::new( pMemory ) T( a1 );
+	return ::new(pMemory) T(a1);
 }
 
 template <class T, typename ARG1, typename ARG2>
-inline T* Construct( T* pMemory, ARG1 a1, ARG2 a2 )
+inline T* Construct(T* pMemory, ARG1 a1, ARG2 a2)
 {
-	return ::new( pMemory ) T( a1, a2 );
+	return ::new(pMemory) T(a1, a2);
 }
 
 template <class T, typename ARG1, typename ARG2, typename ARG3>
-inline T* Construct( T* pMemory, ARG1 a1, ARG2 a2, ARG3 a3 )
+inline T* Construct(T* pMemory, ARG1 a1, ARG2 a2, ARG3 a3)
 {
-	return ::new( pMemory ) T( a1, a2, a3 );
+	return ::new(pMemory) T(a1, a2, a3);
 }
 
 template <class T, typename ARG1, typename ARG2, typename ARG3, typename ARG4>
-inline T* Construct( T* pMemory, ARG1 a1, ARG2 a2, ARG3 a3, ARG4 a4 )
+inline T* Construct(T* pMemory, ARG1 a1, ARG2 a2, ARG3 a3, ARG4 a4)
 {
-	return ::new( pMemory ) T( a1, a2, a3, a4 );
+	return ::new(pMemory) T(a1, a2, a3, a4);
 }
 
 template <class T, typename ARG1, typename ARG2, typename ARG3, typename ARG4, typename ARG5>
-inline T* Construct( T* pMemory, ARG1 a1, ARG2 a2, ARG3 a3, ARG4 a4, ARG5 a5 )
+inline T* Construct(T* pMemory, ARG1 a1, ARG2 a2, ARG3 a3, ARG4 a4, ARG5 a5)
 {
-	return ::new( pMemory ) T( a1, a2, a3, a4, a5 );
+	return ::new(pMemory) T(a1, a2, a3, a4, a5);
 }
 
 template <class T, class P>
-inline void ConstructOneArg( T* pMemory, P const& arg)
+inline void ConstructOneArg(T* pMemory, P const& arg)
 {
-	::new( pMemory ) T(arg);
+	::new(pMemory) T(arg);
 }
 
 template <class T, class P1, class P2 >
-inline void ConstructTwoArg( T* pMemory, P1 const& arg1, P2 const& arg2)
+inline void ConstructTwoArg(T* pMemory, P1 const& arg1, P2 const& arg2)
 {
-	::new( pMemory ) T(arg1, arg2);
+	::new(pMemory) T(arg1, arg2);
 }
 
 template <class T, class P1, class P2, class P3 >
-inline void ConstructThreeArg( T* pMemory, P1 const& arg1, P2 const& arg2, P3 const& arg3)
+inline void ConstructThreeArg(T* pMemory, P1 const& arg1, P2 const& arg2, P3 const& arg3)
 {
-	::new( pMemory ) T(arg1, arg2, arg3);
+	::new(pMemory) T(arg1, arg2, arg3);
 }
 
 template <class T>
-inline T* CopyConstruct( T* pMemory, T const& src )
+inline T* CopyConstruct(T* pMemory, T const& src)
 {
-	return ::new( pMemory ) T(src);
+	return ::new(pMemory) T(src);
 }
 
 template <class T>
-inline void Destruct( T* pMemory )
+inline void Destruct(T* pMemory)
 {
 	pMemory->~T();
 
 #ifdef _DEBUG
-	memset( reinterpret_cast<void*>( pMemory ), 0xDD, sizeof(T) );
+	memset(reinterpret_cast<void*>(pMemory), 0xDD, sizeof(T));
 #endif
 }
 
@@ -1404,7 +1424,7 @@ inline void Destruct( T* pMemory )
 
 /*	TEMPLATE_FUNCTION_TABLE()
 
-    (Note added to platform.h so platforms that correctly support templated
+	(Note added to platform.h so platforms that correctly support templated
 	 functions can handle portions as templated functions rather than wrapped
 	 functions)
 
@@ -1459,7 +1479,7 @@ inline void Destruct( T* pMemory )
 	};
 */
 
-PLATFORM_INTERFACE bool vtune( bool resume );
+PLATFORM_INTERFACE bool vtune(bool resume);
 
 
 #define TEMPLATE_FUNCTION_TABLE(RETURN_TYPE, NAME, ARGS, COUNT)			\
@@ -1514,25 +1534,25 @@ RETURN_TYPE FASTCALL __Function_##NAME<nArgument>::Run ARGS
 //-----------------------------------------------------------------------------
 #if 0 // defined( PLATFORM_WINDOWS_PC )
 
-PLATFORM_INTERFACE void *Plat_GetProcAddress( const char *pszModule, const char *pszName );
+PLATFORM_INTERFACE void* Plat_GetProcAddress(const char* pszModule, const char* pszName);
 
 template <typename FUNCPTR_TYPE>
 class CDynamicFunction
 {
 public:
-	CDynamicFunction( const char *pszModule, const char *pszName, FUNCPTR_TYPE pfnFallback = NULL )
+	CDynamicFunction(const char* pszModule, const char* pszName, FUNCPTR_TYPE pfnFallback = NULL)
 	{
 		m_pfn = pfnFallback;
-		void *pAddr = Plat_GetProcAddress( pszModule, pszName );
-		if ( pAddr )
+		void* pAddr = Plat_GetProcAddress(pszModule, pszName);
+		if (pAddr)
 		{
 			m_pfn = (FUNCPTR_TYPE)pAddr;
 		}
 	}
 
-	operator bool()			{ return m_pfn != NULL;	}
-	bool operator !()		{ return !m_pfn;	}
-	operator FUNCPTR_TYPE()	{ return m_pfn; }
+	operator bool() { return m_pfn != NULL; }
+	bool operator !() { return !m_pfn; }
+	operator FUNCPTR_TYPE() { return m_pfn; }
 
 private:
 	FUNCPTR_TYPE m_pfn;
@@ -1545,7 +1565,7 @@ private:
 #include "tier0/valve_on.h"
 
 #if defined(TIER0_DLL_EXPORT)
-extern "C" int V_tier0_stricmp(const char *s1, const char *s2 );
+extern "C" int V_tier0_stricmp(const char* s1, const char* s2);
 #undef stricmp
 #undef strcmpi
 #define stricmp(s1,s2) V_tier0_stricmp( s1, s2 )

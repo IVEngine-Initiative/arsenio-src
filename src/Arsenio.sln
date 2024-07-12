@@ -22,8 +22,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tier1", "tier1\tier1.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vgui_controls", "vgui2\vgui_controls\vgui_controls.vcxproj", "{F69B3672-C5E8-CD1A-257F-253A25B5B939}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "responserules_runtime", "responserules\runtime\responserules.vcxproj", "{E3AA5C48-0E8B-D6DC-78F0-98A9167BD297}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shaders (Arsenio)", "materialsystem\stdshaders\game_shader_dx9_arsenio.vcxproj", "{ECB4F134-3CBF-F365-9329-6EFEC86D6286}"
 	ProjectSection(ProjectDependencies) = postProject
 		{BAB92FF0-D72A-D7E5-1988-74628D39B94F} = {BAB92FF0-D72A-D7E5-1988-74628D39B94F}
@@ -76,10 +74,6 @@ Global
 		{F69B3672-C5E8-CD1A-257F-253A25B5B939}.Debug|x86.Build.0 = Debug|Win32
 		{F69B3672-C5E8-CD1A-257F-253A25B5B939}.Release|x86.ActiveCfg = Release|Win32
 		{F69B3672-C5E8-CD1A-257F-253A25B5B939}.Release|x86.Build.0 = Release|Win32
-		{E3AA5C48-0E8B-D6DC-78F0-98A9167BD297}.Debug|x86.ActiveCfg = Debug|Win32
-		{E3AA5C48-0E8B-D6DC-78F0-98A9167BD297}.Debug|x86.Build.0 = Debug|Win32
-		{E3AA5C48-0E8B-D6DC-78F0-98A9167BD297}.Release|x86.ActiveCfg = Release|Win32
-		{E3AA5C48-0E8B-D6DC-78F0-98A9167BD297}.Release|x86.Build.0 = Release|Win32
 		{ECB4F134-3CBF-F365-9329-6EFEC86D6286}.Debug|x86.ActiveCfg = Debug|Win32
 		{ECB4F134-3CBF-F365-9329-6EFEC86D6286}.Debug|x86.Build.0 = Debug|Win32
 		{ECB4F134-3CBF-F365-9329-6EFEC86D6286}.Release|x86.ActiveCfg = Release|Win32

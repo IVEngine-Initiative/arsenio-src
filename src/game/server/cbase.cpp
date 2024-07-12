@@ -84,8 +84,10 @@ OUTPUTS:
 #include "tier1/strtools.h"
 #include "datacache/imdlcache.h"
 #include "env_debughistory.h"
-
+#include "convar.h"
 #include "tier0/vprof.h"
+#include "tier1/utlvector.h"
+#include "tier1/strtools.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -241,6 +243,9 @@ CBaseEntityOutput::~CBaseEntityOutput()
 		ev = pNext;
 	}
 }
+
+
+
 
 
 //-----------------------------------------------------------------------------
