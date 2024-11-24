@@ -1,35 +1,51 @@
-#include "cbase.h"           
 #include "gametype.h"
-#include "tier1/strtools.h" 
+#include "tier1/strtools.h"  
+#include "cbase.h"            
+#include <fstream>            
+#include <string>             
 
 GameType CGameType::m_gameType = GameType::ARSENIO_2044;
 
-void CGameType::SetGameType(GameType gameType)
+void CGameType::LoadGameTypeFromFile()
 {
+    std::ifstream file("gametype.txt");
+    std::string gameType;
 
-    if (gameType == GameType::ARSENIO_2044)
+    if (file.is_open())
     {
-        Msg("Setting game type to: Arsenio 2044\n");
-    }
-    else if (gameType == GameType::DATA_REDACTED)
-    {
-        Msg("Setting game type to: Data Redacted\n");
+        std::getline(file, gameType);
+        file.close();
+
+        Msg("Loaded game type from file: %s\n", gameType.c_str());
+
+        if (gameType == "ARSENIO 2044")
+        {
+            m_gameType = GameType::ARSENIO_2044;
+        }
+        else if (gameType == "DATA REDACTED")
+        {
+            m_gameType = GameType::DATA_REDACTED;
+        }
+        else
+        {
+
+            Error("ERROR: Invalid Game Type");
+        }
     }
     else
     {
-        Msg("Setting game type to: Unknown\n");
+
+        Error("ERROR: No GameType.txt file found.");
     }
+}
 
+void CGameType::SetGameType(GameType gameType)
+{
     m_gameType = gameType;
-
-    Msg("Current game type is now: %s\n", GetGameTypeAsString(m_gameType).c_str());
 }
 
 GameType CGameType::GetGameType()
 {
-
-    Msg("Getting current game type: %s\n", GetGameTypeAsString(m_gameType).c_str());
-
     return m_gameType;
 }
 
@@ -42,6 +58,11 @@ std::string CGameType::GetGameTypeAsString(GameType gameType)
     case GameType::DATA_REDACTED:
         return "Data Redacted";
     default:
-        return "Unknown";
+        return "Invalid Game Type";
     }
+}
+
+void CGameType::Init()
+{
+    LoadGameTypeFromFile();
 }

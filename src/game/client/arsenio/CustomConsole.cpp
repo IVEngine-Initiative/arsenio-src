@@ -35,7 +35,7 @@ CGameConsoleDialog::CGameConsoleDialog() : BaseClass(NULL, "GameConsole", false)
 
     m_flLerp = 0.0f;
 
-    m_pEngineVersionLabel = new Label(this, "EngineVersionLabel", "IVEngine 3.14 (Build 5763)");
+    m_pEngineVersionLabel = new Label(this, "EngineVersionLabel", "IVEngine 3.17 (Build 5763)");
     m_pEngineVersionLabel->SetFgColor(Color(255, 255, 255, 255));
 
     m_pEngineVersionLabel->SetPos(GetWide() - 270, 2);

@@ -15,6 +15,8 @@ class CGameType
 public:
 
     static void SetGameType(GameType gameType);
+    void Init();
+    void LoadGameTypeFromFile();
 
     static GameType GetGameType();
 
