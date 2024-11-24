@@ -2414,6 +2414,11 @@ bool CNPC_BaseZombie::HeadcrabFits( CBaseAnimating *pCrab )
 //-----------------------------------------------------------------------------
 void CNPC_BaseZombie::ReleaseHeadcrab( const Vector &vecOrigin, const Vector &vecVelocity, bool fRemoveHead, bool fRagdollBody, bool fRagdollCrab )
 {
+
+	#ifdef ARSENIO
+		// fuck you i hate you so much i hate headcrabs (for zombies mode)
+		return;
+	#endif
 	CAI_BaseNPC		*pCrab;
 	Vector vecSpot = vecOrigin;
 
