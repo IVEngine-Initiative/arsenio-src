@@ -200,7 +200,7 @@ void CriteriaSet::RemoveCriteria( const char *criteria )
 	if ( criteria[0] == kAPPLYTOWORLDPREFIX )
 	{
 		Assert( m_nNumPrefixedContexts > 0 );
-		m_nNumPrefixedContexts = isel( m_nNumPrefixedContexts - 1, m_nNumPrefixedContexts - 1, 0 );
+	//	m_nNumPrefixedContexts = isel( m_nNumPrefixedContexts - 1, m_nNumPrefixedContexts - 1, 0 );
 	}
 	RemoveCriteria( idx, false );
 }
@@ -216,7 +216,7 @@ void CriteriaSet::RemoveCriteria( int idx, bool bTestForPrefix )
 		if ( sm_CriteriaSymbols.String( m_Lookup[idx].criterianame )[0] == kAPPLYTOWORLDPREFIX )
 		{
 			Assert( m_nNumPrefixedContexts > 0 );
-			m_nNumPrefixedContexts = isel( m_nNumPrefixedContexts - 1, m_nNumPrefixedContexts - 1, 0 );
+		//	m_nNumPrefixedContexts = isel( m_nNumPrefixedContexts - 1, m_nNumPrefixedContexts - 1, 0 );
 		}
 	}
 	m_Lookup.RemoveAt( idx );

@@ -70,6 +70,7 @@
 #include "vote_controller.h"
 #include "ai_speech.h"
 //#include "arsenio/func_shop.h"
+#include "arsenio/gametype.h"
 
 #include "weapon_frag.h"
 #include "basebludgeonweapon.h"
@@ -536,6 +537,41 @@ void CBasePlayer::CreateHandModel(int index, int iOtherVm)
 
 }
 #endif
+
+void GameTypeCommand(const CCommand& args)
+{
+	if (args.ArgC() < 2)
+	{
+		Msg("Usage: game_type_set <game_type>\n");
+		Msg("Available game types: Arsenio 2044, Data Redacted\n");
+		return;
+	}
+
+	std::string gameTypeStr = args[1];
+	GameType gameType = GameType::GAME_TYPE_INVALID;
+
+	if (gameTypeStr == "Arsenio 2044")
+	{
+		gameType = GameType::ARSENIO_2044;
+	}
+	else if (gameTypeStr == "Data Redacted")
+	{
+		gameType = GameType::DATA_REDACTED;
+	}
+
+	if (gameType != GameType::GAME_TYPE_INVALID)
+	{
+
+		CGameType::SetGameType(gameType);
+		Msg("Game type set to: %s\n", gameTypeStr.c_str());
+	}
+	else
+	{
+		Msg("Invalid game type. Available options are: Arsenio 2044, Data Redacted\n");
+	}
+}
+
+ConCommand game_type_set("game_type_set", GameTypeCommand, "Sets the current game type (Arsenio 2044 or Data Redacted).", FCVAR_SERVER_CAN_EXECUTE);
 
 //-----------------------------------------------------------------------------
 // Purpose: 
