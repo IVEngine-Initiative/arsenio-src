@@ -220,7 +220,7 @@ void CWeaponRevolverDR::ItemPostFrame(void)
 			m_bZoomed = true;
 
 		}
-		else if (m_bZoomed = true)
+		else // fixed error
 		{
 			pPlayer->SetFOV(this, 0, 0);
 			m_bZoomed = false;
