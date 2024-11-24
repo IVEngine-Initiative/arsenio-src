@@ -1,6 +1,6 @@
+#include "cbase.h"
 #include "gametype.h"
-#include "tier1/strtools.h"  
-#include "cbase.h"            
+#include "tier1/strtools.h"         
 #include <fstream>            
 #include <string>             
 
