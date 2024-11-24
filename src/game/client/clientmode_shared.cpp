@@ -98,7 +98,7 @@ extern ConVar voice_modenable;
 
 extern bool IsInCommentaryMode(void);
 
-#ifdef ARSENIO
+#ifdef ARSENIO_TEMP
 CMapLoadBG* pPanelBg;
 IMaterial* pMatMapBg;
 //BasePanel* pBasePanel;
@@ -296,7 +296,7 @@ ClientModeShared::ClientModeShared()
 	m_pChatElement = NULL;
 	m_pWeaponSelection = NULL;
 	m_nRootSize[0] = m_nRootSize[1] = -1;
-#ifdef ARSENIO
+#ifdef ARSENIO_TEMP
 	pPanelBg = NULL;
 	pMatMapBg = NULL;
 #endif
@@ -390,7 +390,7 @@ void ClientModeShared::Init()
 
 	HOOK_MESSAGE(VGUIMenu);
 	HOOK_MESSAGE(Rumble);
-#ifdef ARSENIO
+#ifdef ARSENIO_TEMP
 	CreateInterfaceFn gameUIFactory = g_GameUI.GetFactory();
 	if (gameUIFactory)
 	{
@@ -870,13 +870,14 @@ void ClientModeShared::LevelInit(const char* newmap)
 	// Reset any player explosion/shock effects
 	CLocalPlayerFilter filter;
 	enginesound->SetPlayerDSP(filter, 0, true);
-#ifdef ARSENIO
+#ifdef ARSENIO_TEMP
 #ifdef _WIN32
 	char szMapBgName[MAX_PATH];
 #else	// !_WIN32
 	char szMapBgName[PATH_MAX];
 #endif	// _WIN32
 
+#ifdef ARSENIO_TEMP
 	Q_snprintf(szMapBgName, sizeof(szMapBgName), "vgui/loading/maps/%s", newmap);
 
 	pMatMapBg = materials->FindMaterial(szMapBgName, TEXTURE_GROUP_OTHER);
@@ -890,6 +891,7 @@ void ClientModeShared::LevelInit(const char* newmap)
 	{
 		pPanelBg->SetNewBackgroundImage("loading/default");
 	}
+#endif
 #endif
 }
 

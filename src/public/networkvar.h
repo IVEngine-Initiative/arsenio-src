@@ -45,13 +45,13 @@ inline int InternalCheckDeclareClass( const char *pClassName, const char *pClass
 	return 0;
 }
 
-
+#ifdef VALIDATE_DECLARE_CLASS
 template <typename T> 
 inline int CheckDeclareClass_Access( T *, const char *pShouldBe )
 {
 	return T::CheckDeclareClass( pShouldBe );
 }
-
+#endif
 #ifndef _STATIC_LINKED
 #ifdef _MSC_VER
 #if defined(_DEBUG) && (_MSC_VER > 1200 )
