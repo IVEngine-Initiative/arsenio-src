@@ -29,6 +29,12 @@ $Project "Client - Arsenio"
 		$File	"c_team_objectiveresource.cpp"
 		$File	"c_team_objectiveresource.h"
 		
+		$Folder	"AR/DR SHARED"
+		{		
+			$File	"$SRCDIR\game\shared\arsenio/gametype.cpp"
+			$File	"$SRCDIR\game\shared\arsenio/gametype.h"
+		}
+		
 		$Folder	"AR DLL"
 		{
 			$File	"c_vehicle_airboat.h"			

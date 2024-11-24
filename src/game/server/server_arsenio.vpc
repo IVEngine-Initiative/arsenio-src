@@ -55,6 +55,13 @@ $Project "Server - Arsenio"
 		$Lib	"responserules" [$NEW_RESPONSE_SYSTEM]
 		
 }
+
+		$Folder	"AR/DR SHARED"
+		{		
+			$File	"$SRCDIR\game\shared\arsenio/gametype.cpp"
+			$File	"$SRCDIR\game\shared\arsenio/gametype.h"
+		}
+		
 		$Folder	"AR DLL"
 		{		
 			$File	"$SRCDIR\game\shared\player_mobility_defs.h"
