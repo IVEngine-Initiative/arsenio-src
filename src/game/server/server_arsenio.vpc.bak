@@ -109,7 +109,6 @@ $Project "Server - Arsenio"
 			$File	"arsenio\weapon_striker.cpp"
 			$File	"weapon_frag.h"	
 			$File	"hl1\hl1_npc_controller.cpp"
-			$File	"arsenio\weapon_revolver_dr.cpp"
 
 
                         }

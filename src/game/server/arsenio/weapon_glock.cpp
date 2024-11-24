@@ -114,7 +114,7 @@ public:
 
 	virtual float GetFireRate( void ) 
 	{
-		return 0.1f; 
+		return 0.1f; // WARNING: Still fucking around with the firerate, it's currently too fast.
 	}
 
 	DECLARE_ACTTABLE();
