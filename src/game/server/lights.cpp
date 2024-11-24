@@ -23,6 +23,13 @@ DEFINE_KEYFIELD(m_iStyle, FIELD_INTEGER, "style"),
 DEFINE_KEYFIELD(m_iDefaultStyle, FIELD_INTEGER, "defaultstyle"),
 DEFINE_KEYFIELD(m_iszPattern, FIELD_STRING, "pattern"),
 
+// New fields for Godray system
+DEFINE_KEYFIELD(m_bGodraysEnabled, FIELD_BOOLEAN, "godrays"),  // Keyvalue to toggle Godrays
+DEFINE_KEYFIELD(m_fGodrayIntensity, FIELD_FLOAT, "godray_intensity"), // Intensity of the Godrays
+DEFINE_KEYFIELD(m_pGodrayEntity, FIELD_EHANDLE, "godray_entity"),  // Handle for the Godray entity
+DEFINE_KEYFIELD(m_fGodrayScale, FIELD_FLOAT, "godray_scale"),  // Scale of the Godray effect
+
+
 // Fuctions
 DEFINE_FUNCTION(FadeThink),
 
@@ -33,6 +40,7 @@ DEFINE_INPUTFUNC(FIELD_VOID, "Toggle", InputToggle),
 DEFINE_INPUTFUNC(FIELD_VOID, "TurnOn", InputTurnOn),
 DEFINE_INPUTFUNC(FIELD_VOID, "TurnOff", InputTurnOff),
 
+
 END_DATADESC()
 
 
@@ -42,7 +50,19 @@ END_DATADESC()
 //
 bool CLight::KeyValue(const char* szKeyName, const char* szValue)
 {
-	if (FStrEq(szKeyName, "pitch"))
+	if (FStrEq(szKeyName, "godrays"))
+	{
+		m_bGodraysEnabled = atoi(szValue) > 0;
+	}
+	else if (FStrEq(szKeyName, "godray_intensity"))
+	{
+		m_fGodrayIntensity = atof(szValue);
+	}
+	else if (FStrEq(szKeyName, "godray_scale"))
+	{
+		m_fGodrayScale = atof(szValue);
+	}
+	else if (FStrEq(szKeyName, "pitch"))
 	{
 		QAngle angles = GetAbsAngles();
 		angles.x = atof(szValue);
@@ -55,6 +75,7 @@ bool CLight::KeyValue(const char* szKeyName, const char* szValue)
 
 	return true;
 }
+
 
 // Light entity
 // If targeted, it will toggle between on or off.
@@ -80,8 +101,73 @@ void CLight::Spawn(void)
 		else
 			engine->LightStyle(m_iStyle, "m");
 	}
+	// Check if Godrays are enabled, and spawn the godray entity if so
+	if (m_bGodraysEnabled)
+	{
+		SpawnGodrays();
+	}
+
+	// Set the default intensity and scale
+	if (m_fGodrayIntensity <= 0.0f) m_fGodrayIntensity = 1.0f;  // Default intensity if not set
+	if (m_fGodrayScale <= 0.0f) m_fGodrayScale = 1.0f;  // Default scale if not set
 }
 
+void CLight::SpawnGodrays()
+{
+	// Spawn the Godray model (ep2_pak.vpk\models\effects\vol_light128x128.mdl)
+	if (!m_pGodrayEntity)
+	{
+		m_pGodrayEntity = CreateEntityByName("env_model");
+		if (m_pGodrayEntity)
+		{
+			// Set model and other properties
+			m_pGodrayEntity->SetModel("models/effects/vol_light128x128.mdl");
+			m_pGodrayEntity->SetAbsOrigin(GetAbsOrigin());  // Position it at the light's location
+			m_pGodrayEntity->SetAbsAngles(GetAbsAngles());  // Align with the light's angle
+			m_pGodrayEntity->SetParent(this);  // Attach it to the light
+
+			// Scale the godray model based on the intensity and scale
+		//	Vector scale = Vector(m_fGodrayScale, m_fGodrayScale, m_fGodrayScale);
+		//	m_pGodrayEntity->SetModelScale(scale);
+		}
+	}
+}
+
+void CLight::EnableGodrays(bool bEnable)
+{
+	if (bEnable)
+	{
+		if (m_pGodrayEntity)
+		{
+			// Enable the Godrays by removing the NODRAW effect
+			m_pGodrayEntity->RemoveEffects(EF_NODRAW);
+			// Set the intensity and scale for the Godrays
+			UpdateGodraySettings();
+		}
+	}
+	else
+	{
+		if (m_pGodrayEntity)
+		{
+			// Hide the Godrays by adding the NODRAW effect
+			m_pGodrayEntity->AddEffects(EF_NODRAW);
+		}
+	}
+}
+
+void CLight::UpdateGodraySettings()
+{
+	// Update the intensity (could involve scaling, transparency, or other adjustments)
+	if (m_pGodrayEntity)
+	{
+		// Adjust the model scale or other properties to match the intensity
+	//	Vector scale = Vector(m_fGodrayIntensity * m_fGodrayScale, m_fGodrayIntensity * m_fGodrayScale, m_fGodrayIntensity * m_fGodrayScale);
+	//	m_pGodrayEntity->SetModelScale(scale);
+	}
+
+	// Optionally, adjust transparency or other visual effects based on intensity
+	// For example: m_pGodrayEntity->SetRenderColorA(intensity * 255);
+}
 
 void CLight::Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
 {
@@ -108,7 +194,39 @@ void CLight::TurnOn(void)
 		engine->LightStyle(m_iStyle, "m");
 	}
 
+	if (m_bGodraysEnabled && m_pGodrayEntity)
+	{
+		// Adjust the direction of the Godrays
+		QAngle angles = GetAbsAngles();
+		m_pGodrayEntity->SetAbsAngles(angles);  // Align with light's angle
+
+		// Adjust the intensity of the Godrays, if needed (example logic)
+		if (m_fGodrayIntensity > 0.0f)
+		{
+			// Apply changes to the model to reflect intensity here
+			// This could involve scaling the entity or changing its transparency
+		}
+	}
+
 	CLEARBITS(m_spawnflags, SF_LIGHT_START_OFF);
+}
+
+void CLight::Think(void)
+{
+	BaseClass::Think();
+
+	// If Godrays are enabled, update their position and angle to follow the light
+	if (m_bGodraysEnabled && m_pGodrayEntity)
+	{
+		// Adjust the direction of the Godrays
+		QAngle angles = GetAbsAngles();
+		m_pGodrayEntity->SetAbsAngles(angles);  // Align with light's angle
+
+		// Update the intensity and scale based on light's settings
+		UpdateGodraySettings();
+	}
+
+	// Continue with the usual light think logic...
 }
 
 //-----------------------------------------------------------------------------
@@ -134,6 +252,8 @@ void CLight::Toggle(void)
 	{
 		TurnOff();
 	}
+	// Toggle godrays based on light state
+	EnableGodrays(!m_bGodraysEnabled);
 }
 
 //-----------------------------------------------------------------------------

@@ -25,6 +25,7 @@ static ConVar defFOV("csm_default_fov", "15", FCVAR_DEVELOPMENTONLY, "Default FO
 ConVar curFOV("csm_current_fov", "15", 0, "Current FOV. You can change it");
 ConVar csm_second_fov("csm_second_fov", "360", FCVAR_NONE, "FOV of the second csm.");
 ConVar csm_third_fov("csm_third_fov", "2800", FCVAR_NONE, "FOV of the second csm.");
+ConVar csm_brightness_general("csm_brightness_general", "1");
 
 //farz and nearz
 ConVar csm_nearz("csm_nearz", "90000");

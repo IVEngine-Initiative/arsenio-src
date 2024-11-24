@@ -25,6 +25,10 @@ ConVar cl_sky_SunPos("cl_sky_sunpos", "1 1 1 5");
 ConVar cl_sky_windspeed("cl_sky_windspeed", "0 0 0 5");
 ConVar cl_sky_render("cl_sky_render", "1");
 
+// New ConVar for time interval
+ConVar cl_sky_time("cl_sky_time", "1", FCVAR_ARCHIVE, "Sets the time interval (in seconds) for sun position updates.");
+
+
 static void UTIL_StringToFloatArray(float *pVector, int count, const char *pString)
 {
 	char *pstr, *pfront, tempString[128];
@@ -62,6 +66,39 @@ static void UTIL_StringToFloatArray(float *pVector, int count, const char *pStri
 //	SHADER_SAMPLER4	 Flashlight Shadow Depth Map
 //	SHADER_SAMPLER5	 Normalization cube map
 //	SHADER_SAMPLER6	 Flashlight Cookie
+
+// Variables for interval tracking
+static float g_flNextSunUpdate = 0.0f;
+
+// Function to update the sun position
+void UpdateSunPosition()
+{
+	float currentTime = Plat_FloatTime();
+	float interval = cl_sky_time.GetFloat();
+
+	// Check if it's time to update
+	if (currentTime >= g_flNextSunUpdate && interval > 0.0f)
+	{
+		// Parse current sun position
+		float sunPos[4];
+		UTIL_StringToFloatArray(sunPos, 4, cl_sky_SunPos.GetString());
+
+		// Increment sun's X position (example update logic)
+		sunPos[0] += 0.1f;
+
+		// Wrap around if necessary (for demonstration purposes)
+		if (sunPos[0] > 360.0f)
+			sunPos[0] = 0.0f;
+
+		// Update the ConVar with the new position
+		char newSunPos[128];
+		Q_snprintf(newSunPos, sizeof(newSunPos), "%.1f %.1f %.1f %.1f", sunPos[0], sunPos[1], sunPos[2], sunPos[3]);
+		cl_sky_SunPos.SetValue(newSunPos);
+
+		// Schedule the next update
+		g_flNextSunUpdate = currentTime + interval;
+	}
+}
 
 
 //-----------------------------------------------------------------------------
@@ -251,10 +288,11 @@ void DrawSkydome_Internal(CBaseVSShader *pShader, IMaterialVar** params, IShader
 //-----------------------------------------------------------------------------
 // Draws the shader
 //-----------------------------------------------------------------------------
-void DrawSkydome(CBaseVSShader *pShader, IMaterialVar** params, IShaderDynamicAPI *pShaderAPI, IShaderShadow* pShaderShadow,
-	Skydome_Vars_t &info, VertexCompressionType_t vertexCompression, CBasePerMaterialContextData **pContextDataPtr)
-
+void DrawSkydome(CBaseVSShader* pShader, IMaterialVar** params, IShaderDynamicAPI* pShaderAPI, IShaderShadow* pShaderShadow, Skydome_Vars_t& info, VertexCompressionType_t vertexCompression, CBasePerMaterialContextData** pContextDataPtr)
 {
+	// Update the sun position based on the interval
+	UpdateSunPosition();
+
 	bool bHasFlashlight = pShader->UsingFlashlight(params);
 	if (bHasFlashlight)
 	{

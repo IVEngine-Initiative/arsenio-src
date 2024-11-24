@@ -1314,7 +1314,8 @@ void CHLClient::PostInit()
 
 	CCursorClipManagement::Init();
 
-	
+	if (CommandLine()->FindParm("-nogameui") == 0)
+	{
 		CSysModule* pGamepadUIModule = g_pFullFileSystem->LoadModule("gamepadui", "GAMEBIN", false);
 		if (pGamepadUIModule != nullptr)
 		{
@@ -1349,6 +1350,8 @@ void CHLClient::PostInit()
 			GamepadUI_Log("Unable to load gamepadui module\n");
 			Error("Couldn't load Library gamepadui.dll ");
 		}
+	}
+
 
 
 		if (CommandLine()->FindParm("-nogameui") == 0)

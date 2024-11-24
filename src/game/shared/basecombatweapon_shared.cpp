@@ -90,6 +90,10 @@ ConVar viewmodel_adjust_roll("viewmodel_adjust_roll", "0", FCVAR_REPLICATED);
 ConVar viewmodel_adjust_fov("viewmodel_adjust_fov", "0", FCVAR_REPLICATED, "Note: this feature is not available during any kind of zoom", vm_adjust_fov_callback);
 ConVar viewmodel_adjust_enabled("viewmodel_adjust_enabled", "0", FCVAR_REPLICATED | FCVAR_CHEAT, "enabled viewmodel adjusting", vm_adjust_enable_callback);
 
+#ifdef ARSENIO
+ConVar ar_infiniteammo("ar_infiniteammo", "0", FCVAR_ARCHIVE, "Toggles infinite ammo.");
+#endif
+
 ConVar gunsounds( "gunsounds", "1", FCVAR_REPLICATED );
 
 void vm_adjust_enable_callback(IConVar* pConVar, char const* pOldString, float flOldValue)
@@ -1752,6 +1756,7 @@ bool CBaseCombatWeapon::DefaultDeploy(char* szViewModel, char* szWeaponModel, in
 		CBaseCombatWeapon* pActive = GetOwner()->GetActiveWeapon();
 		if (pActive && pActive->GetActivity() == ACT_VM_HOLSTER)
 		{
+			DisableIronsights();
 			flSequenceDuration = pActive->SequenceDuration();
 		}
 	}
@@ -2741,18 +2746,24 @@ void CBaseCombatWeapon::PrimaryAttack( void )
 			break;
 	}
 
-	// Make sure we don't fire more than the amount in the clip
-	if ( UsesClipsForAmmo1() )
-	{
-		info.m_iShots = MIN( info.m_iShots, m_iClip1 );
-		m_iClip1 -= info.m_iShots;
-	}
-	else
-	{
-		info.m_iShots = MIN( info.m_iShots, pPlayer->GetAmmoCount( m_iPrimaryAmmoType ) );
-		pPlayer->RemoveAmmo( info.m_iShots, m_iPrimaryAmmoType );
-	}
 
+
+	ConVar* pInfiniteAmmo = cvar->FindVar("ar_infiniteammo");
+
+	if (pInfiniteAmmo && pInfiniteAmmo->GetInt() == 0)
+	{
+		// Make sure we don't fire more than the amount in the clip
+		if (UsesClipsForAmmo1())
+		{
+			info.m_iShots = MIN(info.m_iShots, m_iClip1);
+			m_iClip1 -= info.m_iShots;
+		}
+		else
+		{
+			info.m_iShots = MIN(info.m_iShots, pPlayer->GetAmmoCount(m_iPrimaryAmmoType));
+			pPlayer->RemoveAmmo(info.m_iShots, m_iPrimaryAmmoType);
+		}
+	}
 	info.m_flDistance = MAX_TRACE_LENGTH;
 	info.m_iAmmoType = m_iPrimaryAmmoType;
 	info.m_iTracerFreq = 2;

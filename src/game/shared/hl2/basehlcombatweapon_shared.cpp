@@ -392,6 +392,8 @@ float CBaseHLCombatWeapon::CalcViewmodelBob(void)
 	if (!pPlayer)
 		return 0.0f;
 
+
+
 	static float bobtime;
 	static float lastbobtime;
 	float cycle;

@@ -53,7 +53,7 @@
 	
 #endif
 
-#ifdef ARSENIO_M
+#ifdef ARSENIO
 	
 	ConVar cl_viewpunch_power("cl_viewpunch_power", "0.4", 0, "", true, 0.0f, true, 1.0f);
 
@@ -1833,7 +1833,7 @@ void CBasePlayer::CalcView( Vector &eyeOrigin, QAngle &eyeAngles, float &zNear, 
 }
 
 
-  #ifndef ARSENIO
+  #ifdef ARSENIO
   void CBasePlayer::CalcViewModelView(const Vector& eyeOrigin, const QAngle& eyeAngles)
   {
   
@@ -1854,7 +1854,7 @@ void CBasePlayer::CalcView( Vector &eyeOrigin, QAngle &eyeAngles, float &zNear, 
 
 		vm->CalcViewModelView(this, eyeOrigin + bobOffset * arsenio_viewbob_viewmodel_add.GetFloat(), punchedAngle);	}
 }
-#endif
+#else
 
 void CBasePlayer::CalcViewModelView(const Vector& eyeOrigin, const QAngle& eyeAngles)
 {
@@ -1868,8 +1868,8 @@ void CBasePlayer::CalcViewModelView(const Vector& eyeOrigin, const QAngle& eyeAn
 	}
 
 }
-//#endif
-#ifdef ARSENIO_M
+#endif
+#ifdef ARSENIO
 void CBasePlayer::AddViewBob(Vector& eyeOrigin, QAngle& eyeAngles, bool calculate)
 {
 	static float bobtime, lastbobtime;
@@ -1955,7 +1955,7 @@ void CBasePlayer::CalcPlayerView( Vector& eyeOrigin, QAngle& eyeAngles, float& f
 	m_flObserverChaseDistance = 0.0;
 #endif
 
-#ifdef ARSENIO_CLIENT_M
+#ifdef ARSENIO_CLIENT
 
 	AddViewBob(eyeOrigin, eyeAngles, true);
 

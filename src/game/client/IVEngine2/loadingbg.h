@@ -29,8 +29,7 @@ public:
 protected:
 	void ApplySchemeSettings(vgui::IScheme* pScheme);
 
-	// Declare the OnTick function here, but don't define it
-	virtual void OnTick();
+
 
 private:
 	vgui::ImagePanel* m_pBackground;

@@ -301,3 +301,4 @@ void CGlobalLight::InputSetTime(inputdata_t& inputdata)
 {
 	m_fTime = inputdata.value.Float();
 }
+

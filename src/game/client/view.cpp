@@ -67,9 +67,60 @@ void ToolFramework_AdjustEngineViewport( int& x, int& y, int& width, int& height
 bool ToolFramework_SetupEngineView( Vector &origin, QAngle &angles, float &fov );
 bool ToolFramework_SetupEngineMicrophone( Vector &origin, QAngle &angles );
 
+// Global variable to store the attachment focus state
+bool g_attachmentFocusEnabled = false;
 
 extern ConVar default_fov;
 extern bool g_bRenderingScreenshot;
+
+// Global variable to store the attachment name
+char g_attachmentName[128] = "muzzle";
+
+// Function to set the attachment name
+void CC_SetAttachmentName(const CCommand& args)
+{
+	if (args.ArgC() != 2)
+	{
+		Msg("Usage: set_attachment_name <name>\n");
+		return;
+	}
+
+	Q_strncpy(g_attachmentName, args[1], sizeof(g_attachmentName));
+	Msg("Attachment name set to %s\n", g_attachmentName);
+}
+
+// Register the console command
+static ConCommand set_attachment_name("set_attachment_name", CC_SetAttachmentName, "Sets the attachment name for camera focus.", FCVAR_NONE);
+
+// Function to enable or disable attachment focus
+void CC_ToggleAttachmentFocus(const CCommand& args)
+{
+	if (args.ArgC() != 2)
+	{
+		Msg("Usage: ar_attachment_on <0/1>\n");
+		return;
+}
+
+	int state = atoi(args[1]);
+	if (state == 0)
+	{
+		g_attachmentFocusEnabled = false;
+		Msg("Attachment focus disabled\n");
+	}
+	else if (state == 1)
+	{
+		g_attachmentFocusEnabled = true;
+		Msg("Attachment focus enabled\n");
+	}
+	else
+	{
+		Msg("Invalid argument. Use 0 to disable and 1 to enable.\n");
+	}
+}
+
+// Register the console command
+static ConCommand ar_attachment_on("ar_attachment_on", CC_ToggleAttachmentFocus, "Enables or disables the attachment focus for the camera.", FCVAR_NONE);
+
 
 #if !defined( _X360 )
 #define SAVEGAME_SCREENSHOT_WIDTH	180
@@ -1259,22 +1310,35 @@ void CViewRender::Render( vrect_t *rect )
 			// we should use the monitor view from the left eye for both eyes
 			flags |= RENDERVIEW_SUPPRESSMONITORRENDERING;
 		}
-	#ifdef ARSENIOS
 
 		if (pPlayer && pPlayer->InFirstPersonView() && pPlayer->GetViewModel(0))
 		{
-			int iCamAttachment = pPlayer->GetViewModel(0)->LookupAttachment("attach_camera");
-
-			if (iCamAttachment != -1)
+			if (g_attachmentFocusEnabled)
 			{
-				Vector cameraOrigin = Vector(0, 0, 0);
-				QAngle cameraAngles = QAngle(0, 0, 0);
-				pPlayer->GetViewModel(0)->GetAttachmentLocal(iCamAttachment, cameraOrigin, cameraAngles);
-				view.angles += cameraAngles;
-				view.origin += cameraOrigin;
+				int iCamAttachment = pPlayer->GetViewModel(0)->LookupAttachment(g_attachmentName);
+
+				if (iCamAttachment != -1)
+				{
+					Vector muzzleOrigin = Vector(0, 0, 0);
+					QAngle muzzleAngles = QAngle(0, 0, 0);
+					pPlayer->GetViewModel(0)->GetAttachment(iCamAttachment, muzzleOrigin, muzzleAngles);
+
+					Vector cameraOrigin = view.origin;
+					Vector toMuzzle = muzzleOrigin - cameraOrigin;
+					VectorNormalize(toMuzzle);
+
+					QAngle newCameraAngles;
+					VectorAngles(toMuzzle, newCameraAngles);
+
+					view.angles = newCameraAngles; // Set camera angles to look at attachment
+				}
 			}
 		}
-		#endif
+
+
+
+
+
 
 	    RenderView( view, nClearFlags, flags );
 
@@ -1298,20 +1362,6 @@ void CViewRender::Render( vrect_t *rect )
 				// TODO - a bit of a shonky test - basically trying to catch the main menu, the briefing screen, the loadout screen, etc.
 				bool bTranslucent = !g_pMatSystemSurface->IsCursorVisible();
 				g_ClientVirtualReality.OverlayHUDQuadWithUndistort( view, bDoUndistort, g_pClientMode->ShouldBlackoutAroundHUD(), bTranslucent );
-			}
-		}
-		// IVEngine 2 Camera attachment code
-		if (pPlayer && pPlayer->InFirstPersonView() && pPlayer->GetViewModel(0))
-		{
-			int iCamAttachment = pPlayer->GetViewModel(0)->LookupAttachment("Base");
-
-			if (iCamAttachment != -1)
-			{
-				Vector cameraOrigin = Vector(0, 0, 0);
-				QAngle cameraAngles = QAngle(0, 0, 0);
-				pPlayer->GetViewModel(0)->GetAttachmentLocal(iCamAttachment, cameraOrigin, cameraAngles);
-				view.angles += cameraAngles;
-				view.origin += cameraOrigin;
 			}
 		}
     }

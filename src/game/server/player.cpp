@@ -517,6 +517,7 @@ void CBasePlayer::CreateViewModel(int index /*=0*/)
 //-----------------------------------------------------------------------------
 void CBasePlayer::CreateHandModel(int index, int iOtherVm)
 {
+
 	Assert(index >= 0 && index < MAX_VIEWMODELS&& iOtherVm >= 0 && iOtherVm < MAX_VIEWMODELS);
 
 	if (GetViewModel(index))
@@ -532,6 +533,7 @@ void CBasePlayer::CreateHandModel(int index, int iOtherVm)
 		vm->FollowEntity(GetViewModel(iOtherVm), true);
 		m_hViewModel.Set(index, vm);
 	}
+
 }
 #endif
 
@@ -4619,9 +4621,11 @@ void CBasePlayer::PostThink()
 
 	if (gpGlobals->eLoadType != MapLoad_Background)
 	{
-#ifdef ARSENIO
-		debugoverlay->AddScreenTextOverlay(0.02f, 0.60f, 0.0f, 0, 255, 255, 255, CFmtStr("ARSENIO 2044 APRIL ALPHA."));
-#endif
+	#ifdef ARSENIO
+			// Centered at the bottom of the screen
+			debugoverlay->AddScreenTextOverlay(0.5f, 0.95f, 0.0f, 0, 255, 255, 255, CFmtStr("ARSENIO 2044 NOVEMBER 2024 ALPHA."));
+	#endif
+
 	}
 	if (!g_fGameOver && !m_iPlayerLocked)
 	{
@@ -6519,7 +6523,7 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 		GiveNamedItem("weapon_shotgun");
 		GiveNamedItem("weapon_mp5k");
 		//GiveNamedItem("weapon_mp99k");
-		//GiveNamedItem("weapon_rpg"); 
+		GiveNamedItem("weapon_50cal"); 
 		GiveNamedItem("weapon_357");
 		GiveNamedItem("weapon_crossbow");
 		GiveNamedItem("weapon_pro836");

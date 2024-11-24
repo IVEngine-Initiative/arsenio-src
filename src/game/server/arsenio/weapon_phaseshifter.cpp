@@ -6,93 +6,216 @@ LINK_ENTITY_TO_CLASS(weapon_phaseshifter, CWeaponPhaseShifter);
 BEGIN_DATADESC(CWeaponPhaseShifter)
 DEFINE_FIELD(m_flPhaseOutDuration, FIELD_FLOAT),
 DEFINE_FIELD(m_flProjectileSpeed, FIELD_FLOAT),
+DEFINE_FIELD(m_CurrentMode, FIELD_INTEGER),
 END_DATADESC()
 
 CWeaponPhaseShifter::CWeaponPhaseShifter()
 {
-	m_flPhaseOutDuration = 15.0f; // Set the default phase-out duration (in seconds)
-	m_flProjectileSpeed = 5000.0f; // Set the default projectile speed (adjust as needed)
+    m_flPhaseOutDuration = 15.0f;
+    m_flProjectileSpeed = 500.0f;
+    m_CurrentMode = PHASE_MODE;
 }
 
 void CWeaponPhaseShifter::Precache()
 {
-	BaseClass::Precache();
-	// Precache any necessary particle effects and sounds
+    BaseClass::Precache();
+
 }
 
 void CWeaponPhaseShifter::PrimaryAttack()
 {
-	CBasePlayer* pPlayer = ToBasePlayer(GetOwner());
-	if (!pPlayer)
-		return;
+    CBasePlayer* pPlayer = ToBasePlayer(GetOwner());
+    if (!pPlayer || m_flNextPrimaryAttack > gpGlobals->curtime)
+        return;
 
-	if (m_flNextPrimaryAttack > gpGlobals->curtime)
-		return;
-	
-	// Play weapon sound, muzzle flash, and other visual effects
+    switch (m_CurrentMode)
+    {
+    case PHASE_MODE:
+    {
 
-	Vector vecShootOrigin, vecShootDir;
-	vecShootOrigin = pPlayer->Weapon_ShootPosition();
-	AngleVectors(pPlayer->EyeAngles(), &vecShootDir);
+        Vector vecShootOrigin = pPlayer->Weapon_ShootPosition();
+        Vector vecShootDir;
+        AngleVectors(pPlayer->EyeAngles(), &vecShootDir);
+        Vector vecEnd = vecShootOrigin + vecShootDir * MAX_TRACE_LENGTH;
 
-	Vector vecEnd = vecShootOrigin + vecShootDir * MAX_TRACE_LENGTH;
+        trace_t tr;
+        UTIL_TraceLine(vecShootOrigin, vecEnd, MASK_SHOT, pPlayer, COLLISION_GROUP_NONE, &tr);
 
-	trace_t tr;
-	UTIL_TraceLine(vecShootOrigin, vecEnd, MASK_SHOT, pPlayer, COLLISION_GROUP_NONE, &tr);
+        if (tr.DidHit() && tr.m_pEnt && tr.m_pEnt->IsNPC())
+        {
+            PhaseOutEnemy(tr.m_pEnt);
+        }
+        break;
+    }
+    case JUMP_MODE:
+    {
 
-	if (tr.DidHit())
-	{
-		// Check if the trace hit an enemy
-		CBaseEntity* pEntity = tr.m_pEnt;
-		if (pEntity && pEntity->IsNPC())
-		{
-			PhaseOutEnemy(pEntity);
-		}
-	}
+        Vector vecShootDir;
+        AngleVectors(pPlayer->EyeAngles(), &vecShootDir);
+        Vector vecVelocity = vecShootDir * m_flProjectileSpeed;
+        pPlayer->SetAbsVelocity(vecVelocity);
+        break;
+    }
+    case TELEPORT_MODE:
+    {
 
-	m_flNextPrimaryAttack = gpGlobals->curtime + GetFireRate();
+        Vector vecShootOrigin = pPlayer->Weapon_ShootPosition();
+        Vector vecShootDir;
+        AngleVectors(pPlayer->EyeAngles(), &vecShootDir);
+        Vector vecEnd = vecShootOrigin + vecShootDir * MAX_TRACE_LENGTH;
+
+        trace_t tr;
+        UTIL_TraceLine(vecShootOrigin, vecEnd, MASK_SHOT, pPlayer, COLLISION_GROUP_NONE, &tr);
+
+        if (!tr.startsolid && !tr.allsolid)
+        {
+            Vector newPosition = tr.endpos;
+
+            if (IsPositionWithinBounds(newPosition))
+            {
+                pPlayer->Teleport(&newPosition, &pPlayer->GetLocalAngles(), &vec3_origin);
+            }
+            else
+            {
+
+                DevMsg("Teleportation out of bounds prevented.\n");
+            }
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
+    m_flNextPrimaryAttack = gpGlobals->curtime + GetFireRate();
+}
+
+void CWeaponPhaseShifter::SecondaryAttack()
+{
+
+    m_CurrentMode = static_cast<Mode>((m_CurrentMode + 1) % MODE_COUNT);
+    m_flNextSecondaryAttack = gpGlobals->curtime + 0.5f;
+
+    DevMsg("Switched to mode: %d\n", m_CurrentMode);
 }
 
 void CWeaponPhaseShifter::ItemPostFrame()
 {
-	BaseClass::ItemPostFrame();
+    BaseClass::ItemPostFrame();
 
-	// Add code here for any continuous effects or updates
 }
 
 void CWeaponPhaseShifter::PhaseOutEnemy(CBaseEntity* pEnemy)
 {
-	if (!pEnemy || !pEnemy->IsNPC())
-		return;
+    if (!pEnemy || !pEnemy->IsNPC())
+        return;
 
-	CBaseCombatCharacter* pNPC = pEnemy->MyCombatCharacterPointer();
-	if (!pNPC)
-		return;
+    CBaseCombatCharacter* pNPC = pEnemy->MyCombatCharacterPointer();
+    if (!pNPC)
+        return;
 
-	// Apply the phase-out effect to the enemy (disable movement, attack, etc.)
-	pNPC->AddEffects(EF_NODRAW); // Make the enemy invisible
-	pNPC->AddFlag(FL_NOTARGET); // Make the enemy not targetable
-	pNPC->SetSolid(SOLID_NONE); // Make the enemy non-solid (cannot be hit)
+    pNPC->AddEffects(EF_NODRAW);
+    pNPC->AddFlag(FL_NOTARGET);
+    pNPC->SetSolid(SOLID_NONE);
 
-	// Set a timer to restore the enemy to normal state after m_flPhaseOutDuration
-	pEnemy->SetContextThink(&CWeaponPhaseShifter::RestoreEnemy, gpGlobals->curtime + GetPhaseOutDuration(), "RestoreEnemyThink");
+    pEnemy->SetContextThink(&CWeaponPhaseShifter::RestoreEnemy, gpGlobals->curtime + GetPhaseOutDuration(), "RestoreEnemyThink");
 }
 
 void CWeaponPhaseShifter::RestoreEnemy()
 {
-	CBaseEntity* pEnemy = this; // The weapon entity is passed as the context in the think function
+    CBaseEntity* pEnemy = this;
 
-	if (!pEnemy || !pEnemy->IsNPC())
-		return;
+    if (!pEnemy || !pEnemy->IsNPC())
+        return;
 
-	CBaseCombatCharacter* pNPC = pEnemy->MyCombatCharacterPointer();
-	if (!pNPC)
-		return;
+    CBaseCombatCharacter* pNPC = pEnemy->MyCombatCharacterPointer();
+    if (!pNPC)
+        return;
 
-	// Restore the enemy to normal state
-	pNPC->RemoveEffects(EF_NODRAW);
-	pNPC->RemoveFlag(FL_NOTARGET);
-	pNPC->SetSolid(SOLID_BBOX); // Restore the enemy's collision box
+    pNPC->RemoveEffects(EF_NODRAW);
+    pNPC->RemoveFlag(FL_NOTARGET);
+    pNPC->SetSolid(SOLID_BBOX);
 
-	// Add any other logic for restoring the enemy to a normal state after the phase-out effect
+}
+
+bool CWeaponPhaseShifter::IsPositionWithinBounds(const Vector& position)
+{
+
+    const float MIN_X = -10000.0f;
+    const float MAX_X = 10000.0f;
+    const float MIN_Y = -10000.0f;
+    const float MAX_Y = 10000.0f;
+    const float MIN_Z = 0.0f;
+    const float MAX_Z = 5000.0f;
+
+    if (position.x < MIN_X || position.x > MAX_X ||
+        position.y < MIN_Y || position.y > MAX_Y ||
+        position.z < MIN_Z || position.z > MAX_Z)
+    {
+        return false;
+    }
+    return true;
+}
+
+void CWeaponPhaseShifter::PerformJumpMode()
+{
+    CBasePlayer* pPlayer = ToBasePlayer(GetOwner());
+    if (!pPlayer)
+        return;
+
+    Vector vecShootOrigin, vecShootDir;
+    vecShootOrigin = pPlayer->Weapon_ShootPosition();
+    AngleVectors(pPlayer->EyeAngles(), &vecShootDir);
+
+    Vector vecEnd = vecShootOrigin + vecShootDir * MAX_TRACE_LENGTH;
+
+    Vector vecVelocity = vecShootDir * m_flProjectileSpeed;
+    pPlayer->SetAbsVelocity(vecVelocity);
+
+}
+
+void CWeaponPhaseShifter::PerformTeleportMode()
+{
+    CBasePlayer* pPlayer = ToBasePlayer(GetOwner());
+    if (!pPlayer)
+        return;
+
+    Vector vecShootOrigin, vecShootDir;
+    vecShootOrigin = pPlayer->Weapon_ShootPosition();
+    AngleVectors(pPlayer->EyeAngles(), &vecShootDir);
+
+    Vector vecEnd = vecShootOrigin + vecShootDir * MAX_TRACE_LENGTH;
+
+    trace_t tr;
+    UTIL_TraceLine(vecShootOrigin, vecEnd, MASK_SOLID, pPlayer, COLLISION_GROUP_NONE, &tr);
+
+    if (tr.fraction < 1.0f)
+    {
+        Vector newPosition = tr.endpos - vecShootDir * 10;
+
+        if (IsPositionWithinBounds(newPosition))
+        {
+            pPlayer->SetAbsOrigin(newPosition);
+        }
+        else
+        {
+
+            DevMsg("Teleportation out of bounds prevented.\n");
+        }
+    }
+    else
+    {
+        Vector newPosition = vecEnd;
+
+        if (IsPositionWithinBounds(newPosition))
+        {
+            pPlayer->SetAbsOrigin(newPosition);
+        }
+        else
+        {
+
+            DevMsg("Teleportation out of bounds prevented.\n");
+        }
+    }
+
 }

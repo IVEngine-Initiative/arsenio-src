@@ -249,6 +249,7 @@ void CZombie::Precache( void )
 	BaseClass::Precache();
 
 	PrecacheModel( "models/zombie/classic.mdl" );
+	PrecacheModel("models/runner.mdl");
 	PrecacheModel( "models/zombie/classic_torso.mdl" );
 	PrecacheModel( "models/zombie/classic_legs.mdl" );
 
@@ -287,7 +288,7 @@ void CZombie::Spawn( void )
 		m_fIsTorso = true;
 	}
 
-#ifdef OPTUX3 
+#ifdef ARSENIO 
 	// No more headcrabs.
 	m_fIsHeadless = true; 
 #else
@@ -494,36 +495,45 @@ const char *CZombie::GetTorsoModel( void )
 //---------------------------------------------------------
 void CZombie::SetZombieModel( void )
 {
-	Hull_t lastHull = GetHullType();
+    Hull_t lastHull = GetHullType();
 
-	if ( m_fIsTorso )
-	{
-		SetModel( "models/zombie/classic_torso.mdl" );
-		SetHullType( HULL_TINY );
-	}
-	else
-	{
-		SetModel( "models/zombie/classic.mdl" );
-		SetHullType( HULL_HUMAN );
-	}
+    if ( m_fIsTorso )
+    {
+        SetModel( "models/zombie/classic_torso.mdl" );
+        SetHullType( HULL_TINY );
+    }
+    else
+    {
+        // Randomly choose between classic and runner models with 50-50 chance
+        if (rand() % 2 == 0) // Generates 0 or 1, 50-50 chance
+        {
+            SetModel( "models/zombie/classic.mdl" );
+        }
+        else
+        {
+            SetModel( "models/runner.mdl" );
+        }
+        SetHullType( HULL_HUMAN );
+    }
 
-	SetBodygroup( ZOMBIE_BODYGROUP_HEADCRAB, !m_fIsHeadless );
+    SetBodygroup( ZOMBIE_BODYGROUP_HEADCRAB, !m_fIsHeadless );
 
-	SetHullSizeNormal( true );
-	SetDefaultEyeOffset();
-	SetActivity( ACT_IDLE );
+    SetHullSizeNormal( true );
+    SetDefaultEyeOffset();
+    SetActivity( ACT_IDLE );
 
-	// hull changed size, notify vphysics
-	// UNDONE: Solve this generally, systematically so other
-	// NPCs can change size
-	if ( lastHull != GetHullType() )
-	{
-		if ( VPhysicsGetObject() )
-		{
-			SetupVPhysicsHull();
-		}
-	}
+    // hull changed size, notify vphysics
+    // UNDONE: Solve this generally, systematically so other
+    // NPCs can change size
+    if ( lastHull != GetHullType() )
+    {
+        if ( VPhysicsGetObject() )
+        {
+            SetupVPhysicsHull();
+        }
+    }
 }
+
 
 //---------------------------------------------------------
 // Classic zombie only uses moan sound if on fire.

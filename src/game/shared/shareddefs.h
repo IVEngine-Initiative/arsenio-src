@@ -15,7 +15,7 @@
 #define GAME_NAME           "ARSENIO 2044"
 #define GAME_VERSION_MAJOR  0
 #define GAME_VERSION_MINOR  0
-#define GAME_VERSION_PATCH  2
+#define GAME_VERSION_PATCH  3
 #endif
 
 

@@ -276,6 +276,7 @@ public:
 	void Display( CBaseEntity *pActivator );
 
 	void InputSetText(inputdata_t& inputdata);
+	void InputMathText(inputdata_t& inputdata);
 	void SetText(const char* pszStr);
 
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
@@ -311,6 +312,7 @@ BEGIN_DATADESC( CGameText )
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID, "Display", InputDisplay ),
 	DEFINE_INPUTFUNC(FIELD_STRING, "SetText", InputSetText),
+	DEFINE_INPUTFUNC(FIELD_VOID, "MathText", InputMathText),  // Register the new input function
 
 END_DATADESC()
 
@@ -337,6 +339,11 @@ bool CGameText::KeyValue( const char *szKeyName, const char *szValue )
 		m_textParms.g2 = color[1];
 		m_textParms.b2 = color[2];
 		m_textParms.a2 = color[3];
+	}
+	else if (FStrEq(szKeyName, "message"))
+	{
+		// Needed for newline support
+		SetText(szValue);
 	}
 	else
 		return BaseClass::KeyValue( szKeyName, szValue );
@@ -375,10 +382,92 @@ void CGameText::Display( CBaseEntity *pActivator )
 	}
 }
 
+	void CGameText::InputMathText(inputdata_t& inputdata)
+	{
+		// Try to find the math_counter entity
+		CBaseEntity* pMathCounter = nullptr;
+
+		// Search through all entities to find a math_counter named "maincounter"
+		for (CBaseEntity* pEntity = gEntList.FirstEnt(); pEntity != nullptr; pEntity = gEntList.NextEnt(pEntity))
+		{
+			if (FStrEq(pEntity->GetClassname(), "math_counter") && FStrEq(STRING(pEntity->GetEntityName()), "maincounter"))
+			{
+				pMathCounter = pEntity;
+				break; // Stop once we find the first match
+			}
+		}
+
+		// If a math_counter was found, get its value and set the text
+		if (pMathCounter)
+		{
+			char szCounterValue[64];  // Buffer to store the counter value
+
+			// Retrieve the counter value as a string
+			pMathCounter->GetKeyValue("value", szCounterValue, sizeof(szCounterValue));
+
+			// Set the text to the counter value
+			SetText(szCounterValue);
+		}
+		else
+		{
+			// If no math_counter was found, set a default message
+			SetText("No math_counter named 'maincounter' found");
+		}
+	}
+
+
 void CGameText::InputSetText(inputdata_t& inputdata)
 {
-	SetText(inputdata.value.String());
+    const char* pszInput = inputdata.value.String();
+
+    // Check if the input is empty (the parameter field in Hammer is blank)
+    if (pszInput && pszInput[0] == '\0') // empty string
+    {
+        // Try to find the math_counter entity named "maincounter"
+        CBaseEntity* pMathCounter = nullptr;
+
+        // Searching through all entities to find a math_counter with the name "maincounter"
+        for (CBaseEntity* pEntity = gEntList.FirstEnt(); pEntity != nullptr; pEntity = gEntList.NextEnt(pEntity))
+        {
+            if (FStrEq(pEntity->GetClassname(), "math_counter") && FStrEq(STRING(pEntity->GetEntityName()), "maincounter"))
+            {
+                pMathCounter = pEntity;
+                break; // Stop once we find the first match
+            }
+        }
+
+        // If a math_counter was found, get its value and set the text
+        if (pMathCounter)
+        {
+            // Create a buffer to hold the counter value
+            char szCounterValue[64];  // Buffer to store the counter value
+
+            // Retrieve the counter value as a string
+            pMathCounter->GetKeyValue("value", szCounterValue, sizeof(szCounterValue));
+
+            // Now, szCounterValue contains the value of "value" from the math_counter entity
+            SetText(szCounterValue);  // Set the text to the counter value as string
+        }
+        else
+        {
+            // If no math_counter was found, set a default message
+            SetText("No math_counter named 'maincounter' found");
+        }
+    }
+    else
+    {
+        // If the input isn't empty, proceed with the usual behavior
+        SetText(pszInput);
+    }
 }
+
+
+
+
+
+
+
+
 
 void CGameText::SetText(const char* pszStr)
 {

@@ -510,6 +510,8 @@ void CHL2_Player::Precache( void )
 	PrecacheModel("models/barney.mdl");
 	PrecacheModel("models/weapons/arms/v_arms_gambler_new.mdl");
 
+	PrecacheModel("models/weapons/ez2/v_kick.mdl");
+
 	PrecacheScriptSound("Player.Woosh");
 
 	PrecacheScriptSound("Player.KickSwing");
