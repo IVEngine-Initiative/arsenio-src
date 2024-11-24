@@ -114,7 +114,7 @@ public:
 
 	virtual float GetFireRate( void ) 
 	{
-		return 0.1f; 
+		return 0.3f; 
 	}
 
 	DECLARE_ACTTABLE();
