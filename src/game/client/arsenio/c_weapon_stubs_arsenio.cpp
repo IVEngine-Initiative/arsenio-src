@@ -54,6 +54,7 @@ STUB_WEAPON_CLASS(weapon_striker, WeaponStriker, C_BaseHLCombatWeapon); // Coool
 STUB_WEAPON_CLASS(weapon_unarmed, WeaponUnarmed, C_BaseHLBludgeonWeapon); // Mobility Mode
 STUB_WEAPON_CLASS(weapon_phaseshifter, WeaponPhaseShifter, C_BaseHLCombatWeapon);
 STUB_WEAPON_CLASS(weapon_50cal, Weapon50cal, C_BaseHLCombatWeapon);
+STUB_WEAPON_CLASS(weapon_revolver_DR, WeaponRevolverDR, C_BaseHLCombatWeapon);
 #ifdef LATER
 #endif
 

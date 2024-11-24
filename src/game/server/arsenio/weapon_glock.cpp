@@ -22,8 +22,10 @@
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-#define	GLOCK_FASTEST_REFIRE_TIME		0.01f
-#define	GLOCK_FASTEST_DRY_REFIRE_TIME	0.2f
+#define	GLOCK_FASTEST_REFIRE_TIME		0.02f
+#define	GLOCK_FASTEST_DRY_REFIRE_TIME	0.04f
+
+#define	GLOCK_FASTEST_DRY_REFIRE_TIME_SLOW	0.06f
 
 //#define	GLOCK_ACCURACY_SHOT_PENALTY_TIME		0.2f	// Applied amount of time each shot adds to the time we must recover from
 //#define	GLOCK_ACCURACY_MAXIMUM_PENALTY_TIME	1.5f	// Maximum penalty to deal out
@@ -112,7 +114,7 @@ public:
 
 	virtual float GetFireRate( void ) 
 	{
-		return 0.5f; 
+		return 0.1f; 
 	}
 
 	DECLARE_ACTTABLE();
@@ -437,6 +439,9 @@ void CWeaponGlock::ItemPostFrame(void)
 
 void CWeaponGlock::SecondaryAttack(void)
 {
+	return; // return to this l8r
+
+    #ifdef oldsecondary
 	//// Check if we can fire
 	//if (!CanAttack())
 	//	return;
@@ -465,6 +470,7 @@ void CWeaponGlock::SecondaryAttack(void)
 	{
 		gamestats->Event_WeaponFired(pPlayer, true, GetClassname());
 	}
+	#endif
 }
 
 
@@ -497,11 +503,11 @@ bool CWeaponGlock::Reload( void )
 void CWeaponGlock::AddViewKick(void)
 {
 	CBasePlayer* pPlayer = ToBasePlayer(GetOwner());
+	QAngle	viewPunch;
 
 	if (pPlayer == NULL)
 		return;
-
-	QAngle	viewPunch;
+	// use secondary attack variable for viewpunch (youll see what i mean if i get to it)
 
 	viewPunch.x = random->RandomFloat(0.25f, 0.5f);
 	viewPunch.y = random->RandomFloat(-.6f, .6f);
