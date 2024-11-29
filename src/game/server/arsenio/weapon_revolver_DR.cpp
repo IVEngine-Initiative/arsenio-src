@@ -40,12 +40,19 @@ public:
 	CWeaponRevolverDR( void );
 
 	void	PrimaryAttack( void );
-	void	SecondaryAttack(void);
+	//void	SecondaryAttack(void);
 	void	ItemPostFrame(void);
 	void	Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
+	float   m_bHeat;
 	bool	m_bZoomed;
 	virtual bool Reload(void);
 	bool Holster(CBaseCombatWeapon* pSwitchingTo);
+	const Vector CWeaponRevolverDR::VECTOR_CONE_PERFECT = Vector(0.0f, 0.0f, 0.0f);
+	virtual const Vector& GetBulletSpread(void)
+	{
+		static const Vector cone = VECTOR_CONE_PERFECT;
+		return cone;
+	}
 
 
 	float	WeaponAutoAimScale()	{ return 0.6f; }
@@ -71,10 +78,11 @@ END_DATADESC()
 CWeaponRevolverDR::CWeaponRevolverDR( void )
 {
 	m_bReloadsSingly	= false;
-	m_bFiresUnderwater	= false;
+	m_bFiresUnderwater	= true;
 	m_bZoomed = false;
+	m_bHeat = 0;
 }
-
+// VECTOR_CONE_PERFECT_ACCURACY
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -116,6 +124,13 @@ void CWeaponRevolverDR::PrimaryAttack( void )
 		return;
 	}
 
+	if (m_bHeat > 5)
+	{
+		SendWeaponAnim(ACT_VM_DEPLOY);
+		m_flNextPrimaryAttack = gpGlobals->curtime + 2;
+		m_bHeat = 0;
+	}
+
 	if ( m_iClip1 <= 0 )
 	{
 		if ( !m_bFireOnEmpty )
@@ -135,15 +150,33 @@ void CWeaponRevolverDR::PrimaryAttack( void )
 	gamestats->Event_WeaponFired( pPlayer, true, GetClassname() );
 
 	WeaponSound( SINGLE );
-	pPlayer->DoMuzzleFlash();
+	pPlayer->DoMuzzleFlash(); // don't muzzleflash
 
 	SendWeaponAnim( ACT_VM_PRIMARYATTACK );
 	pPlayer->SetAnimation( PLAYER_ATTACK1 );
-	// pPlayer->SetFOV( this, 0 );
-	m_flNextPrimaryAttack = gpGlobals->curtime + 0.75;
-	m_flNextSecondaryAttack = gpGlobals->curtime + 0.75;
+
+	if (m_bHeat < 6)
+	{
+		m_flNextPrimaryAttack = gpGlobals->curtime + 0.55;
+	}
+	else
+	{
+		m_flNextPrimaryAttack = gpGlobals->curtime + 2;
+	}
+	m_flNextSecondaryAttack = gpGlobals->curtime + 0.45;
 
 	m_iClip1--;
+	if (m_bHeat < 6)
+	{
+		m_bHeat++;
+	}
+	else
+	{
+		SendWeaponAnim(ACT_VM_DEPLOY);
+		m_bHeat = 0;
+	}
+	//DevMsg("LASER FIRED");
+	//DevMsg("m_bHeat: %", m_bHeat);
 
 	Vector vecSrc		= pPlayer->Weapon_ShootPosition();
 	Vector vecAiming	= pPlayer->GetAutoaimVector( AUTOAIM_SCALE_DEFAULT );	
@@ -153,15 +186,19 @@ void CWeaponRevolverDR::PrimaryAttack( void )
 	pPlayer->SetMuzzleFlashTime( gpGlobals->curtime + 0.5 );
 
 	//Disorient the player
-	QAngle angles = pPlayer->GetLocalAngles();
+	
+	//QAngle angles = pPlayer->GetLocalAngles();
 
-	angles.x += random->RandomInt( -1, 1 );
-	angles.y += random->RandomInt( -1, 1 );
-	angles.z = 0;
+	//angles.x += random->RandomInt( -1, 1 );
+	//angles.y += random->RandomInt( -1, 1 );
+	//angles.z = 0;
 
-	pPlayer->SnapEyeAngles( angles );
+	//pPlayer->SnapEyeAngles( angles );
 
-	pPlayer->ViewPunch( QAngle( -8, random->RandomFloat( -2, 2 ), 0 ) );
+	// pPlayer->ViewPunch( QAngle( -8, random->RandomFloat( -2, 2 ), 0 ) ); 
+
+    
+	// TLDR: Laser's DONT cause recoil. However they can get pretty hot. This will be reflected via an overheating mechanic 
 
 	CSoundEnt::InsertSound( SOUND_COMBAT, GetAbsOrigin(), 600, 0.2, GetOwner() );
 
@@ -171,6 +208,7 @@ void CWeaponRevolverDR::PrimaryAttack( void )
 		pPlayer->SetSuitUpdate( "!HEV_AMO0", FALSE, 0 ); 
 	}
 }
+
 
 bool CWeaponRevolverDR::Reload(void)
 {
@@ -217,19 +255,28 @@ void CWeaponRevolverDR::ItemPostFrame(void)
 		if (!m_bZoomed)
 		{
 			pPlayer->SetFOV(this, 25, 0);
+			pPlayer->ShowViewModel(false);
 			m_bZoomed = true;
 
 		}
-		else // fixed error
+		else // fixed error, just use an else instead
 		{
 			pPlayer->SetFOV(this, 0, 0);
+			pPlayer->ShowViewModel(true);
 			m_bZoomed = false;
 		}
 
 	}
 
-	if (pOwner->m_afButtonPressed & IN_ALT1) // idea for a laser sight like op4's desert eagle
-	{
+
+	//if (~pOwner->m_nButtons & IN_ATTACK)
+	//{ 
+	//	m_bHeat--;
+	//}
+	
+
+	//if (pOwner->m_afButtonPressed & IN_ALT1) // idea for a laser sight like op4's desert eagle
+	//{
 		/*if (!m_bZoomed)
 		{
 			pPlayer->SetFOV(this, 20);
@@ -242,27 +289,5 @@ void CWeaponRevolverDR::ItemPostFrame(void)
 			m_bZoomed = false;
 		}*/
 
-	}
-	BaseClass::ItemPostFrame();
-}
-
-//-----------------------------------------------------------------------------
-// Purpose:
-//-----------------------------------------------------------------------------
-void CWeaponRevolverDR::SecondaryAttack(void)
-{
-	/*
-	CBasePlayer* pPlayer = UTIL_GetLocalPlayer();
-	if (m_bZoomed = false)
-	{
-		pPlayer->SetFOV(this, -125);
-		m_bZoomed = true;
-
-	}
-	else if (m_bZoomed = true)
-	{
-		pPlayer->SetFOV(this, 0);
-		m_bZoomed = false;
-	}
-	*/
+		BaseClass::ItemPostFrame();
 }
