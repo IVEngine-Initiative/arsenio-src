@@ -42,6 +42,7 @@
 #ifdef ARSENIO
 #include "GameUI/IGameUI.h"
 #include "IVEngine2/loadingbg.h"
+#include "arsenio/gametype.h"
 //#include "../FireUI/basepanel.h"
 #endif
 
@@ -101,6 +102,7 @@ extern bool IsInCommentaryMode(void);
 #ifdef ARSENIO
 CMapLoadBG* pPanelBg;
 IMaterial* pMatMapBg;
+//CGameType* ass;
 //BasePanel* pBasePanel;
 #endif
 
@@ -385,6 +387,10 @@ void ClientModeShared::Init()
 	ReplayCamera()->Init();
 #endif
 #endif
+
+	// Insert custom loading panel for the loading dialog
+//	ass = new CGameType();
+	//ass->Init();
 
 	m_CursorNone = vgui::dc_none;
 

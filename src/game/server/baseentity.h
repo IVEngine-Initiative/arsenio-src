@@ -456,6 +456,10 @@ public:
 	void					ClearNavIgnore();
 	bool					IsNavIgnored() const;
 
+#ifdef ARSENIO
+	void					SnapToFloor();
+#endif
+
 	// Is the entity floating?
 	bool					IsFloating();
 

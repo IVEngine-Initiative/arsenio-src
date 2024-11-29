@@ -3855,6 +3855,25 @@ void CBaseEntity::OnEntityEvent( EntityEvent_t event, void *pEventData )
 	SetWaterType( nNewContents );
 }
 
+#ifdef ARSENIO
+
+//-----------------------------------------------------------------------------
+// Snaps an entity to the floor.
+//-----------------------------------------------------------------------------
+void CBaseEntity::SnapToFloor()
+{
+	trace_t tr;
+	Vector start = GetAbsOrigin();
+	Vector end = start + Vector(0, 0, -1000); 
+
+	UTIL_TraceLine(start, end, MASK_SOLID, this, COLLISION_GROUP_NONE, &tr);
+	if (tr.DidHit())
+	{
+		SetAbsOrigin(tr.endpos); 
+	}
+}
+
+#endif
 
 ConVar ent_messages_draw( "ent_messages_draw", "0", FCVAR_CHEAT, "Visualizes all entity input/output activity." );
 

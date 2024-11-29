@@ -12,13 +12,18 @@
 #include "physics_saverestore.h"
 #include "datacache/imdlcache.h"
 #include "activitylist.h"
+#ifdef ARSENIO_CLIENT
+#include "hud_quickinfo.h"
+#endif
 #ifdef GAME_DLL
 #include "globalstate.h"
 #include "string_t.h"
 
 #endif
 
-
+#ifdef ARSENIO_CLIENT
+CHUDDynamicCrosshair* g_pHUDDynamicCrosshair = nullptr; 
+#endif
 
 
 // NVNT start extra includes
@@ -2780,6 +2785,16 @@ void CBaseCombatWeapon::PrimaryAttack( void )
 	pPlayer->FireBullets( info );
 
 
+#ifdef ARSENIO_CLIENT
+	// Trigger the dynamic crosshair shoot behavior
+	engine->ClientCmd("dyncrosshair_shoot");
+
+	// Pass the spread value to the HUD crosshair
+	if (g_pHUDDynamicCrosshair)
+	{
+		g_pHUDDynamicCrosshair->UpdateSpread(info.m_vecSpread.Length());
+	}
+#endif
 
 
 

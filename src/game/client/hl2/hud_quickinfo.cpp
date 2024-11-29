@@ -7,39 +7,12 @@
 #include "view.h"
 #include "basecombatweapon_shared.h"
 #include "mathlib/mathlib.h"
-
+#include "hud_quickinfo.h"
 #include "tier0/memdbgon.h"
 
 using namespace vgui;
 
-class CHUDDynamicCrosshair : public CHudElement, public vgui::Panel
-{
-	DECLARE_CLASS_SIMPLE(CHUDDynamicCrosshair, vgui::Panel);
-
-public:
-	CHUDDynamicCrosshair(const char* pElementName);
-
-	virtual void VidInit();
-	virtual bool ShouldDraw();
-	virtual void Paint();
-
-private:
-	void CalculateCrosshairSpread();
-	void DrawDynamicCrosshair(int xCenter, int yCenter);
-
-	float m_flCurrentSpread;
-	Vector m_vecLastVelocity;
-
-	Color m_clrCrosshair;
-
-	int m_nCrosshairSize;
-	int m_nMaxSpreadSize;
-	float m_flSpreadScale;
-
-	CHudTexture* m_pTexture;
-};
-
-DECLARE_HUDELEMENT(CHUDDynamicCrosshair);
+static ConVar dyncrosshair_spread("dyncrosshair_spread", "10.0", FCVAR_CLIENTDLL, "Dynamic crosshair spread value during shooting.");
 
 CHUDDynamicCrosshair::CHUDDynamicCrosshair(const char* pElementName)
 	: CHudElement(pElementName), BaseClass(nullptr, "HUDDynamicCrosshair")
@@ -49,11 +22,15 @@ CHUDDynamicCrosshair::CHUDDynamicCrosshair(const char* pElementName)
 
 	SetHiddenBits(HIDEHUD_CROSSHAIR);
 
-	m_nCrosshairSize = 5;
-	m_nMaxSpreadSize = 30;
+	m_nCrosshairSize = 15;
+	m_nMaxSpreadSize = 80;
 	m_flSpreadScale = 0.1f;
 	m_clrCrosshair = Color(255, 255, 255, 255);
 	m_pTexture = nullptr;
+
+	m_flCurrentSpread = 0.0f;
+	m_bIsShooting = false;
+	m_flShootingEndTime = 0.0f;
 }
 
 void CHUDDynamicCrosshair::VidInit()
@@ -74,7 +51,6 @@ bool CHUDDynamicCrosshair::ShouldDraw()
 
 void CHUDDynamicCrosshair::Paint()
 {
-
 	int screenWidth, screenHeight;
 	surface()->GetScreenSize(screenWidth, screenHeight);
 	SetBounds(0, 0, screenWidth, screenHeight);
@@ -89,10 +65,10 @@ void CHUDDynamicCrosshair::Paint()
 
 void CHUDDynamicCrosshair::DrawDynamicCrosshair(int xCenter, int yCenter)
 {
-
 	int spreadOffset = static_cast<int>(m_flCurrentSpread);
 
 	surface()->DrawSetColor(m_clrCrosshair);
+
 
 	surface()->DrawLine(xCenter, yCenter - m_nCrosshairSize - spreadOffset, xCenter, yCenter - spreadOffset);
 
@@ -115,15 +91,46 @@ void CHUDDynamicCrosshair::CalculateCrosshairSpread()
 	float baseSpread = speed * m_flSpreadScale;
 
 	float weaponSpread = 0.0f;
-	C_BaseCombatWeapon* pWeapon = pPlayer->GetActiveWeapon();
-	if (pWeapon)
+
+
+	if (m_bIsShooting)
 	{
-
-		Vector bulletSpread = pWeapon->GetBulletSpread();
-
-		weaponSpread = bulletSpread.Length();
-		weaponSpread *= 10.0f;
+		weaponSpread = dyncrosshair_spread.GetFloat();
+	}
+	else
+	{
+		C_BaseCombatWeapon* pWeapon = pPlayer->GetActiveWeapon();
+		if (pWeapon)
+		{
+			Vector bulletSpread = pWeapon->GetBulletSpread();
+			weaponSpread = bulletSpread.Length();
+			weaponSpread *= 10.0f;
+		}
 	}
 
 	m_flCurrentSpread = clamp(baseSpread + weaponSpread, 0.2f, (float)m_nMaxSpreadSize);
+
+
+	if (m_bIsShooting && gpGlobals->curtime >= m_flShootingEndTime)
+	{
+		m_bIsShooting = false;
+	}
 }
+
+void CHUDDynamicCrosshair::UpdateSpread(float weaponSpread)
+{
+	m_flCurrentSpread = clamp(weaponSpread, 0.2f, (float)m_nMaxSpreadSize);
+}
+
+
+void DyncrosshairShoot()
+{
+	CHUDDynamicCrosshair* pCrosshair = dynamic_cast<CHUDDynamicCrosshair*>(gHUD.FindElement("HUDDynamicCrosshair"));
+	if (!pCrosshair)
+		return;
+
+	pCrosshair->m_bIsShooting = true;
+	pCrosshair->m_flShootingEndTime = gpGlobals->curtime + 0.5f;
+}
+
+static ConCommand dyncrosshair_shoot("dyncrosshair_shoot", DyncrosshairShoot, "Triggers dynamic crosshair shooting effect for 0.5 seconds.");

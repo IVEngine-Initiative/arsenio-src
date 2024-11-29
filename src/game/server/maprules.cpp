@@ -276,7 +276,6 @@ public:
 	void Display( CBaseEntity *pActivator );
 
 	void InputSetText(inputdata_t& inputdata);
-	void InputMathText(inputdata_t& inputdata);
 	void SetText(const char* pszStr);
 
 	void Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
@@ -312,7 +311,7 @@ BEGIN_DATADESC( CGameText )
 	// Inputs
 	DEFINE_INPUTFUNC( FIELD_VOID, "Display", InputDisplay ),
 	DEFINE_INPUTFUNC(FIELD_STRING, "SetText", InputSetText),
-	DEFINE_INPUTFUNC(FIELD_VOID, "MathText", InputMathText),  // Register the new input function
+
 
 END_DATADESC()
 
@@ -382,38 +381,7 @@ void CGameText::Display( CBaseEntity *pActivator )
 	}
 }
 
-	void CGameText::InputMathText(inputdata_t& inputdata)
-	{
-		// Try to find the math_counter entity
-		CBaseEntity* pMathCounter = nullptr;
 
-		// Search through all entities to find a math_counter named "maincounter"
-		for (CBaseEntity* pEntity = gEntList.FirstEnt(); pEntity != nullptr; pEntity = gEntList.NextEnt(pEntity))
-		{
-			if (FStrEq(pEntity->GetClassname(), "math_counter") && FStrEq(STRING(pEntity->GetEntityName()), "maincounter"))
-			{
-				pMathCounter = pEntity;
-				break; // Stop once we find the first match
-			}
-		}
-
-		// If a math_counter was found, get its value and set the text
-		if (pMathCounter)
-		{
-			char szCounterValue[64];  // Buffer to store the counter value
-
-			// Retrieve the counter value as a string
-			pMathCounter->GetKeyValue("value", szCounterValue, sizeof(szCounterValue));
-
-			// Set the text to the counter value
-			SetText(szCounterValue);
-		}
-		else
-		{
-			// If no math_counter was found, set a default message
-			SetText("No math_counter named 'maincounter' found");
-		}
-	}
 
 
 void CGameText::InputSetText(inputdata_t& inputdata)
@@ -493,6 +461,127 @@ void CGameText::SetText(const char* pszStr)
 	}
 }
 
+
+class CMathText : public CRulePointEntity
+{
+public:
+	DECLARE_CLASS(CMathText, CRulePointEntity);
+
+	bool KeyValue(const char* szKeyName, const char* szValue);
+
+	DECLARE_DATADESC();
+
+	inline bool MessageToAll(void) { return (m_spawnflags & SF_ENVTEXT_ALLPLAYERS); }
+	inline void MessageSet(const char* pMessage) { m_iszMessage = AllocPooledString(pMessage); }
+	inline const char* MessageGet(void) { return STRING(m_iszMessage); }
+
+	void InputDisplay(inputdata_t& inputdata);
+	void Display(CBaseEntity* pActivator);
+
+	void InputRaiseValue(inputdata_t& inputdata);
+	void InputLowerValue(inputdata_t& inputdata);
+
+	void SetText(int value);
+	void Use(CBaseEntity* pActivator, CBaseEntity* pCaller, USE_TYPE useType, float value)
+	{
+		Display(pActivator);
+	}
+
+private:
+	string_t m_iszMessage;
+	hudtextparms_t m_textParms;
+	int m_value;
+};
+
+
+LINK_ENTITY_TO_CLASS(math_text, CMathText);
+
+
+BEGIN_DATADESC(CMathText)
+DEFINE_KEYFIELD(m_value, FIELD_INTEGER, "value"),
+DEFINE_KEYFIELD(m_textParms.channel, FIELD_INTEGER, "channel"),
+DEFINE_KEYFIELD(m_textParms.x, FIELD_FLOAT, "x"),
+DEFINE_KEYFIELD(m_textParms.y, FIELD_FLOAT, "y"),
+DEFINE_KEYFIELD(m_textParms.effect, FIELD_INTEGER, "effect"),
+DEFINE_KEYFIELD(m_textParms.fadeinTime, FIELD_FLOAT, "fadein"),
+DEFINE_KEYFIELD(m_textParms.fadeoutTime, FIELD_FLOAT, "fadeout"),
+DEFINE_KEYFIELD(m_textParms.holdTime, FIELD_FLOAT, "holdtime"),
+DEFINE_KEYFIELD(m_textParms.fxTime, FIELD_FLOAT, "fxtime"),
+
+DEFINE_ARRAY(m_textParms, FIELD_CHARACTER, sizeof(hudtextparms_t)),
+
+
+DEFINE_INPUTFUNC(FIELD_VOID, "Display", InputDisplay),
+DEFINE_INPUTFUNC(FIELD_INTEGER, "RaiseValue", InputRaiseValue),
+DEFINE_INPUTFUNC(FIELD_INTEGER, "LowerValue", InputLowerValue),
+END_DATADESC()
+
+
+bool CMathText::KeyValue(const char* szKeyName, const char* szValue)
+{
+	if (FStrEq(szKeyName, "value"))
+	{
+		m_value = atoi(szValue);
+	}
+	else
+	{
+		return BaseClass::KeyValue(szKeyName, szValue);
+	}
+	return true;
+}
+
+
+void CMathText::InputRaiseValue(inputdata_t& inputdata)
+{
+	int raiseAmount = inputdata.value.Int();
+	m_value += raiseAmount;
+	SetText(m_value);
+}
+
+
+void CMathText::InputLowerValue(inputdata_t& inputdata)
+{
+	int lowerAmount = inputdata.value.Int();
+	m_value -= lowerAmount;
+	SetText(m_value);
+}
+
+
+void CMathText::InputDisplay(inputdata_t& inputdata)
+{
+	Display(inputdata.pActivator);
+}
+
+void CMathText::Display(CBaseEntity* pActivator)
+{
+	if (!CanFireForActivator(pActivator))
+		return;
+
+	if (MessageToAll())
+	{
+		UTIL_HudMessageAll(m_textParms, MessageGet());
+	}
+	else
+	{
+		if (gpGlobals->maxClients == 1)
+		{
+			CBasePlayer* pPlayer = UTIL_GetLocalPlayer();
+			UTIL_HudMessage(pPlayer, m_textParms, MessageGet());
+		}
+		else if (pActivator && pActivator->IsNetClient())
+		{
+			UTIL_HudMessage(ToBasePlayer(pActivator), m_textParms, MessageGet());
+		}
+	}
+}
+
+
+void CMathText::SetText(int value)
+{
+	char szMessage[64];
+	Q_snprintf(szMessage, sizeof(szMessage), "%d", value);
+	m_iszMessage = AllocPooledString(szMessage);
+}
 
 /* TODO: Replace with an entity I/O version
 //
