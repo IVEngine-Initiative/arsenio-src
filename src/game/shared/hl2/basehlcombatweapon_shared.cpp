@@ -257,27 +257,31 @@ bool CBaseHLCombatWeapon::WeaponShouldBeLowered(void)
 //-----------------------------------------------------------------------------
 void CBaseHLCombatWeapon::WeaponIdle(void)
 {
-	CHL2_Player *pPlayer = static_cast<CHL2_Player *>(GetOwner());
+	CHL2_Player* pPlayer = static_cast<CHL2_Player*>(GetOwner());
 	if (!pPlayer)
 		return;
 
 	float speed = pPlayer->GetLocalVelocity().Length2D();
 
-	if ( pPlayer->IsSprinting() && speed >= 290 )
+	// If the player is sprinting but cannot sprint, lower the weapon
+	if (pPlayer->IsSprinting() && !CanSprint())  
+	{
+		if (GetActivity() != GetIdleLoweredActivity() && GetActivity() != ACT_VM_IDLE_TO_LOWERED)
+		{
+			SendWeaponAnim(GetIdleLoweredActivity());
+		}
+		return;  
+	}
+
+	if (pPlayer->IsSprinting() && speed >= 290)
 	{
 		int iActivity = GetActivity();
-		if (HasWeaponIdleTimeElapsed() || 
-			
-			(
-			GetActivity() == GetIdleActivity() ||
-			GetActivity() == GetWalkActivity() ||
-			GetActivity() == GetIdleLoweredActivity()
-			) ||
+		if (HasWeaponIdleTimeElapsed() ||
+			(GetActivity() == GetIdleActivity() ||
+				GetActivity() == GetWalkActivity() ||
+				GetActivity() == GetIdleLoweredActivity()) ||
 			GetActivity() == ACT_VM_IDLE_TO_LOWERED ||
-			GetActivity() == ACT_VM_LOWERED_TO_IDLE
-			)
-			
-			// (idling || not kicking && activity == idle, walk or lowered || 
+			GetActivity() == ACT_VM_LOWERED_TO_IDLE)
 		{
 			iActivity = GetSprintActivity();
 		}
@@ -287,18 +291,14 @@ void CBaseHLCombatWeapon::WeaponIdle(void)
 		{
 			SendWeaponAnim(iActivity);
 		}
-}
-
-	//See if we should idle high or low
+	}
 	else if (WeaponShouldBeLowered())
 	{
-#if !defined( CLIENT_DLL )
+#if !defined(CLIENT_DLL)
 		pPlayer->Weapon_Lower();
 #endif
-
 		// Move to lowered position if we're not there yet
-		if (GetActivity() != GetIdleLoweredActivity() && GetActivity() != ACT_VM_IDLE_TO_LOWERED
-			&& GetActivity() != ACT_TRANSITION)
+		if (GetActivity() != GetIdleLoweredActivity() && GetActivity() != ACT_VM_IDLE_TO_LOWERED && GetActivity() != ACT_TRANSITION)
 		{
 			SendWeaponAnim(GetIdleLoweredActivity());
 		}
@@ -326,7 +326,6 @@ void CBaseHLCombatWeapon::WeaponIdle(void)
 		{
 			SendWeaponAnim(GetIdleActivity());
 		}
-
 		else if (speed <= (pPlayer->IsSuitEquipped() ? 300 : 200) && GetActivity() == GetSprintActivity())
 		{
 			SendWeaponAnim(GetIdleActivity());
@@ -339,11 +338,10 @@ void CBaseHLCombatWeapon::WeaponIdle(void)
 		{
 			if (gpGlobals->curtime >= m_flNextFidgetTime)
 			{
-				//DevMsg("ACT_VM_FIDGET time!\n");
 				SendWeaponAnim(ACT_VM_FIDGET);
 				m_flNextFidgetTime = gpGlobals->curtime + 9.0f;
 
-				// Player will say random voice lines.
+				// Player will say random voice lines (old code)
 				CPASAttenuationFilter filter(this);
 				filter.UsePredictionRules();
 				EmitSound(filter, entindex(), "Player.Rand");
@@ -354,7 +352,8 @@ void CBaseHLCombatWeapon::WeaponIdle(void)
 			}
 		}
 	}
-}
+	}
+
 
 
 float	g_lateralBob;
@@ -362,23 +361,23 @@ float	g_verticalBob;
 
 #if defined( CLIENT_DLL ) && ( !defined( HL2MP ) && !defined( ARSENIO ) )
 
-#define	HL2_BOB_CYCLE_MIN	0.5f
+#define	HL2_BOB_CYCLE_MIN	1.0f
 #define	HL2_BOB_CYCLE_MAX	0.45f
 #define	HL2_BOB			0.002f
 #define	HL2_BOB_UP		0.5f
 
 
-static ConVar	cl_bobcycle("cl_bobcycle", "0.5");
-static ConVar	cl_bob("cl_bob", "0.002");
-static ConVar	cl_bobup("cl_bobup", "0.5");
+static ConVar	cl_bobcycle( "cl_bobcycle","0.8" );
+static ConVar	cl_bob( "cl_bob","0.002" );
+static ConVar	cl_bobup( "cl_bobup","0.5" );
 
-// Register these cvars if needed for easy tweaking TUX: HAHAHAHAHAHAHAHAHA
-static ConVar	v_iyaw_cycle("v_iyaw_cycle", "2"/*, FCVAR_UNREGISTERED*/);
-static ConVar	v_iroll_cycle("v_iroll_cycle", "0.5"/*, FCVAR_UNREGISTERED*/);
-static ConVar	v_ipitch_cycle("v_ipitch_cycle", "1"/*, FCVAR_UNREGISTERED*/);
-static ConVar	v_iyaw_level("v_iyaw_level", "0.3"/*, FCVAR_UNREGISTERED*/);
-static ConVar	v_iroll_level("v_iroll_level", "0.1"/*, FCVAR_UNREGISTERED*/);
-static ConVar	v_ipitch_level("v_ipitch_level", "0.3"/*, FCVAR_UNREGISTERED*/);
+// Register these cvars if needed for easy tweaking
+static ConVar	v_iyaw_cycle( "v_iyaw_cycle", "2"/*, FCVAR_UNREGISTERED*/ );
+static ConVar	v_iroll_cycle( "v_iroll_cycle", "0.5"/*, FCVAR_UNREGISTERED*/ );
+static ConVar	v_ipitch_cycle( "v_ipitch_cycle", "1"/*, FCVAR_UNREGISTERED*/ );
+static ConVar	v_iyaw_level( "v_iyaw_level", "0.3"/*, FCVAR_UNREGISTERED*/ );
+static ConVar	v_iroll_level( "v_iroll_level", "0.1"/*, FCVAR_UNREGISTERED*/ );
+static ConVar	v_ipitch_level( "v_ipitch_level", "0.3"/*, FCVAR_UNREGISTERED*/ );
 
 
 

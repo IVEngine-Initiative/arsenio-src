@@ -12,8 +12,8 @@
 #include "physics_saverestore.h"
 #include "datacache/imdlcache.h"
 #include "activitylist.h"
-#ifdef ARSENIO_CLIENT
-#include "hud_quickinfo.h"
+#ifdef ARSENIO_CLIENT_RAWR
+#include "arsenio/hud_dynamic_crosshair.h"
 #endif
 #ifdef GAME_DLL
 #include "globalstate.h"
@@ -21,7 +21,7 @@
 
 #endif
 
-#ifdef ARSENIO_CLIENT
+#ifdef ARSENIO_CLIENT_RAWR
 CHUDDynamicCrosshair* g_pHUDDynamicCrosshair = nullptr; 
 #endif
 
@@ -59,10 +59,16 @@ CHUDDynamicCrosshair* g_pHUDDynamicCrosshair = nullptr;
 #include "hl2_player.h"
 #endif
 
+#ifdef ARSENIO_DLL
+#include "arsenio/actual_bullet.h"
+#endif
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
-
+#ifdef ARSENIO
+ConVar bullet_speed("bullet_speed", "2000", FCVAR_CHEAT, "Sets the speed of fired bullets");
+#endif
 // The minimum time a hud hint for a weapon should be on screen. If we switch away before
 // this, then teh hud hint counter will be deremented so the hint will be shown again, as
 // if it had never been seen. The total display time for a hud hint is specified in client
@@ -2772,6 +2778,7 @@ void CBaseCombatWeapon::PrimaryAttack( void )
 	info.m_flDistance = MAX_TRACE_LENGTH;
 	info.m_iAmmoType = m_iPrimaryAmmoType;
 	info.m_iTracerFreq = 2;
+	info.m_pAttacker = GetOwnerEntity();
 
 #if !defined( CLIENT_DLL )
 	// Fire the bullets
@@ -2782,10 +2789,11 @@ void CBaseCombatWeapon::PrimaryAttack( void )
 #endif // CLIENT_DLL
 
 
-	pPlayer->FireBullets( info );
-
-
-#ifdef ARSENIO_CLIENT
+	//pPlayer->FireBullets( info );
+#ifdef ARSENIO_DLL
+	FireActualBullet(info, bullet_speed.GetFloat(), GetTracerType());
+#endif
+#ifdef ARSENIO_CLIENT_RAWR
 	// Trigger the dynamic crosshair shoot behavior
 	engine->ClientCmd("dyncrosshair_shoot");
 

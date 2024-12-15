@@ -59,6 +59,18 @@
 #include "c_prop_portal.h" //portal surface rendering functions
 #endif
 
+
+#ifdef ARSENIO
+#include "..\RenderSystem\irendersystem.h"
+
+#include "..\RenderSystem\rendersystem.h"
+
+#include "appframework/IAppSystemGroup.h"
+#include "client_factorylist.h"
+
+IRenderSystem* g_pRenderSystem = nullptr;
+
+#endif
 	
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -335,6 +347,52 @@ static ConCommand centerview( "centerview", StartPitchDrift );
 
 extern ConVar default_fov;
 
+void LoadRenderSystemModule()
+{
+
+	if (CommandLine()->FindParm("-norendersystem") != 0)
+	{
+		DevMsg("RenderSystem module loading skipped due to -norendersystem flag.\n");
+		return;
+	}
+
+	CSysModule* pRenderSystemModule = g_pFullFileSystem->LoadModule("rendersystem", "GAMEBIN", false);
+	if (pRenderSystemModule != nullptr)
+	{
+		DevMsg("Loaded RenderSystem module.\n");
+
+		CreateInterfaceFn renderSystemFactory = Sys_GetFactory(pRenderSystemModule);
+		if (renderSystemFactory != nullptr)
+		{
+			g_pRenderSystem = (IRenderSystem*)renderSystemFactory(RENDERSYSTEM_INTERFACE_VERSION, nullptr);
+			if (g_pRenderSystem != nullptr)
+			{
+				DevMsg("Initializing IRenderSystem interface...\n");
+
+				factorylist_t factories;
+				FactoryList_Retrieve(factories);
+				g_pRenderSystem->Connect(renderSystemFactory);
+				g_pRenderSystem->Init();
+			}
+			else
+			{
+				DevWarning("Unable to pull IRenderSystem interface.\n");
+				Error("Couldn't load Library rendersystem.dll: Missing IRenderSystem interface.");
+			}
+		}
+		else
+		{
+			DevWarning("Unable to get RenderSystem factory.\n");
+			Error("Couldn't load Library rendersystem.dll: Missing factory function.");
+		}
+	}
+	else
+	{
+		DevWarning("Unable to load RenderSystem module.\n");
+		Error("Couldn't load Library rendersystem.dll: File not found or failed to load.");
+	}
+}
+
 
 
 //-----------------------------------------------------------------------------
@@ -343,6 +401,8 @@ extern ConVar default_fov;
 void CViewRender::Init( void )
 {
 	memset( &m_PitchDrift, 0, sizeof( m_PitchDrift ) );
+
+	LoadRenderSystemModule();
 
 	m_bDrawOverlay = false;
 
@@ -721,6 +781,8 @@ void CViewRender::SetUpViews()
 	bool bCalcViewModelView = false;
 	Vector ViewModelOrigin;
 	QAngle ViewModelAngles;
+
+	// g_pRenderSystem->Push3DView(view);
 
 	if ( engine->IsHLTV() )
 	{

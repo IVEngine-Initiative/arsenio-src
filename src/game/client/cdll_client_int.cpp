@@ -237,6 +237,7 @@ IGamepadUI* g_pGamepadUI = nullptr;
 IGameUI2* GameUI2 = nullptr;
 
 
+
 IHaptics* haptics = NULL;// NVNT haptics system interface singleton
 
 //=============================================================================
@@ -1280,6 +1281,7 @@ bool CHLClient::ReplayPostInit()
 #ifdef ARSENIO
 void SwapDisconnectCommand();
 #endif
+
 
 
 //-----------------------------------------------------------------------------

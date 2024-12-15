@@ -22,6 +22,8 @@
 #include "engine/ivmodelinfo.h"
 
 
+
+
 class CDamageModifier;
 class CDmgAccumulator;
 
@@ -2639,6 +2641,7 @@ inline void CBaseEntity::FireBullets( int cShots, const Vector &vecSrc,
 	info.m_pAttacker = pAttacker;
 	info.m_nFlags = bFirstShotAccurate ? FIRE_BULLETS_FIRST_SHOT_ACCURATE : 0;
 	info.m_bPrimaryAttack = bPrimaryAttack;
+//	FireActualBullet(info, bullet_speed.GetFloat(), GetTracerType());
 
 	FireBullets( info );
 }

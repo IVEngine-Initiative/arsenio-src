@@ -91,6 +91,7 @@ public:
 	void					ShowControlPanells( bool show );
 
 
+
 	virtual CBaseCombatWeapon *GetOwningWeapon( void );
 	
 	virtual CBaseEntity	*GetOwnerViaInterface( void ) { return GetOwner(); }
@@ -247,6 +248,28 @@ private:
 
 
 
+
+	float m_flSprinting = 0.0f;
+
+	//vm bob
+	float m_flSprintBob = 0.0f;
+	bool  m_bSprintSeqTracking = false;
+	float m_flSprintSeqLastStart = 0.0f;
+	float m_flSprintSeqLastStartActive = 0.0f;
+	CNetworkVar(bool, m_bIsSprinting);
+	CNetworkVar(bool, m_bIsSliding);
+	float m_flWalkBob = 0.0f;
+	bool  m_bWalkSeqTracking = false;
+	float m_flWalkSeqLastStart = 0.0f;
+	float m_flWalkSeqLastStartActive = 0.0f;
+	CNetworkVar(bool, m_bCanWalkBob);
+
+	//jump offset
+	bool  m_bJumpModeInAir = false;
+	float m_fJumpOffsetFinalPrevious = 0.0f;
+	float m_fJumpBlendOutFinalPrevious = 0.0f;
+	float m_fJumpBlendIn = 0.0f;
+	float m_fJumpBlendOut = 0.0f;
 
 
 

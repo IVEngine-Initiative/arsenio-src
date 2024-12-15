@@ -11,10 +11,13 @@
 #include "game.h"
 #include "in_buttons.h"
 #include "gamestats.h"
+#include "arsenio/actual_bullet.h"
 
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
+
+extern ConVar bullet_speed;
 
 IMPLEMENT_SERVERCLASS_ST( CHLMachineGun, DT_HLMachineGun )
 END_SEND_TABLE()
@@ -96,7 +99,10 @@ void CHLMachineGun::PrimaryAttack( void )
 	info.m_flDistance = MAX_TRACE_LENGTH;
 	info.m_iAmmoType = m_iPrimaryAmmoType;
 	info.m_iTracerFreq = 2;
-	FireBullets(info);
+	info.m_pAttacker = GetOwnerEntity();
+	// FireBullets(info);
+	FireActualBullet(info, bullet_speed.GetFloat(), GetTracerType());
+
 
 
 	//Factor in the view kick

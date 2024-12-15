@@ -53,12 +53,22 @@ void CRenderSystem::Shutdown()
 
 void CRenderSystem::StartFrame()
 {
-	// prepare frame here or something idk
+	m_Renderables.Purge();
+
+	CMatRenderContextPtr pRenderContext(materials);
+
+	pRenderContext->ClearBuffers(true, true, true); 
+
+
+	pRenderContext->MatrixMode(MATERIAL_MODEL);
+	pRenderContext->LoadIdentity();
+
 }
+
 
 void CRenderSystem::Render(const CViewSetup& view, int nClearFlags, int whatToDraw)
 {
-	Push3DView(view);
+	// Push3DView(view);
 
 	DrawRenderables();
 
@@ -222,13 +232,15 @@ void CRenderSystem::BuildProjMatrix(const CViewSetup& view, VMatrix& matproj)
 	}
 }
 
-void CRenderSystem::Push3DView(const CViewSetup& view)
+void IRenderSystem::Push3DView(const CViewSetup& view)
 {
-	m_ViewStack.Push(view);
-	
+
+	CRenderSystem balls;
+
+	balls.m_ViewStack.Push(view);
 	VMatrix mView, mProj;
-	BuildViewMatrix(view, mView);
-	BuildProjMatrix(view, mProj);
+	balls.BuildViewMatrix(view, mView);
+	balls.BuildProjMatrix(view, mProj);
 
 	CMatRenderContextPtr pRenderContext(materials);
 

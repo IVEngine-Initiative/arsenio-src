@@ -14,7 +14,7 @@
 #include "client_virtualreality.h"
 #include "sourcevr/isourcevirtualreality.h"
 #include "view.h"
-
+#include "ai_activity.h"
 #else
 #include "vguiscreen.h"
 #endif
@@ -610,8 +610,143 @@ void CBaseViewModel::CalcViewModelBasePose(Vector& origin, QAngle& angles, CBase
 {
 	Vector forward, right, up;
 	AngleVectors(owner->EyeAngles(), &forward, &right, &up);
+
+	//sprinting (weapons should stay more level while sprinting)
+	if (GetSequenceActivity(GetSequence()) == ACT_VM_SPRINT || GetSequenceActivity(GetSequence()) == ACT_VM_SPRINT) {
+		m_flSprinting += gpGlobals->frametime / 0.3f;
+	}
+	else if (GetSequenceActivity(GetSequence()) == ACT_VM_PRIMARYATTACK || GetSequenceActivity(GetSequence()) == ACT_VM_SECONDARYATTACK) {
+		m_flSprinting = 0.0f;
+	}
+	else {
+		m_flSprinting -= gpGlobals->frametime / 0.3f;
+	}
+	m_flSprinting = Clamp(m_flSprinting, 0.0f, 1.0f);
+	float fSprintingScale = ((1.0f - (m_flSprinting < 0.5 ? 2 * m_flSprinting * m_flSprinting : 1 - powf(-2 * m_flSprinting + 2, 2) / 2)) * 0.6f) + 0.4f;
+	fSprintingScale = Clamp((angles.x * fSprintingScale) - angles.x, 0.0f, 90.0f) / 90.0f;
+	fSprintingScale *= fSprintingScale;
+	angles.x += fSprintingScale * 90.0f; //easeInOutQuad with some extra stuff
+
+	//movement view bob
+	if (GetSequenceActivity(GetSequence()) == ACT_VM_SPRINT || GetSequenceActivity(GetSequence()) == ACT_VM_SPRINT) {
+		if (!m_bSprintSeqTracking) {
+			m_flSprintSeqLastStart = gpGlobals->curtime;
+			m_bSprintSeqTracking = true;
+		}
+	}
+	else if (m_bSprintSeqTracking) {
+		m_bSprintSeqTracking = false;
+	}
+	if (m_bSprintSeqTracking && m_flSprintBob == 0.0f) {
+		m_flSprintSeqLastStartActive = m_flSprintSeqLastStart;
+	}
+	if (GetSequenceActivity(GetSequence()) == ACT_VM_WALK || GetSequenceActivity(GetSequence()) == ACT_VM_WALK) {
+		if (!m_bWalkSeqTracking) {
+			m_flWalkSeqLastStart = gpGlobals->curtime;
+			m_bWalkSeqTracking = true;
+		}
+	}
+	else if (m_bWalkSeqTracking) {
+		m_bWalkSeqTracking = false;
+	}
+	if (m_bWalkSeqTracking && m_flWalkBob == 0.0f) {
+		m_flWalkSeqLastStartActive = m_flWalkSeqLastStart;
+	}
+	if (owner->GetFlags() & FL_ONGROUND && owner->GetLocalVelocity().Length2D() >= 300 && m_bIsSprinting.Get() && !m_bIsSliding.Get() &&
+		!(GetSequenceActivity(GetSequence()) == ACT_VM_SPRINT || GetSequenceActivity(GetSequence()) == ACT_VM_SPRINT))
+	{
+		m_flSprintBob += gpGlobals->frametime / 0.3f;
+		m_flWalkBob -= gpGlobals->frametime / 0.3f;
+	}
+	else if (owner->GetWaterLevel() != 3 && (owner->GetFlags() & FL_ONGROUND) && owner->GetLocalVelocity().Length2D() >= 100 && !(GetSequenceActivity(GetSequence()) == ACT_VM_WALK)) {
+		m_flWalkBob += gpGlobals->frametime / 0.3f;
+		m_flSprintBob -= gpGlobals->frametime / 0.3f;
+	}
+	else {
+		m_flSprintBob -= gpGlobals->frametime / 0.3f;
+		m_flWalkBob -= gpGlobals->frametime / 0.3f;
+	}
+	if (GetSequenceActivity(GetSequence()) == ACT_VM_PRIMARYATTACK || GetSequenceActivity(GetSequence()) == ACT_VM_SECONDARYATTACK) {
+		m_flSprintBob = 0.0f;
+		m_flWalkBob = 0.0f;
+	}
+	m_flSprintBob = Clamp(m_flSprintBob, 0.0f, 1.0f);
+	m_flWalkBob = Clamp(m_flWalkBob, 0.0f, 1.0f);
+	float flSprintBobTimeline = ((m_flSprintSeqLastStartActive - gpGlobals->curtime) / 0.66666666f); //length of the sprint anims (40 frames)
+	flSprintBobTimeline = flSprintBobTimeline - floorf(flSprintBobTimeline);
+	origin += right * sinf((flSprintBobTimeline + 0.25f) * 6.28318) * 0.7f * m_flSprintBob; //main side to side sway
+	origin += up * ((-cosf((flSprintBobTimeline - 0.25f) * 12.56636f) + sinf((flSprintBobTimeline - 0.25f) * 6.28318) * 0.2f) + 0.8f * (-cosf((flSprintBobTimeline - 0.25f) * 12.56636f) + sinf((flSprintBobTimeline - 0.25f) * 6.28318) * 0.2f)) * 0.3f * m_flSprintBob;//step jolts
+	angles.z += sinf(((flSprintBobTimeline + 0.1 - floorf(flSprintBobTimeline + 0.1)) + 0.25f) * 6.28318) * 2.0f * m_flSprintBob; //rotational sway
+	origin += up * sinf(((flSprintBobTimeline + 0.1 - floorf(flSprintBobTimeline + 0.1)) + 0.25f) * 6.28318) * 0.28f * m_flSprintBob; //vertical sway to counteract rotational sway
+	float flWalkBobTimeline = ((m_flWalkSeqLastStartActive - gpGlobals->curtime) / 0.93333333f); //length of the walk anims (56 frames)
+	flWalkBobTimeline = flWalkBobTimeline - floorf(flWalkBobTimeline);
+	origin += right * sinf((flWalkBobTimeline + 0.25f) * 6.28318) * 0.45f * m_flWalkBob; //main side to side sway
+	origin += up * ((-cosf((flWalkBobTimeline - 0.25f) * 12.56636f) + sinf((flWalkBobTimeline - 0.25f) * 6.28318) * 0.2f) + 0.8f * (-cosf((flWalkBobTimeline - 0.25f) * 12.56636f) + sinf((flWalkBobTimeline - 0.25f) * 6.28318) * 0.2f)) * 0.15f * m_flWalkBob;//step jolts
+	angles.z += sinf(((flWalkBobTimeline + 0.05 - floorf(flWalkBobTimeline + 0.05)) + 0.25f) * 6.28318) * 1.5f * m_flWalkBob; //rotational tilt sway
+	origin += up * sinf(((flWalkBobTimeline + 0.05 - floorf(flWalkBobTimeline + 0.05)) + 0.25f) * 6.28318) * 0.21f * m_flWalkBob; //vertical sway to counteract rotational tilt sway
+	flWalkBobTimeline = flWalkBobTimeline - 0.05 - floorf(flWalkBobTimeline - 0.05); //offset it for the rotation step jolts
+	angles.x += ((-cosf((flWalkBobTimeline - 0.25f) * 12.56636f) + sinf((flWalkBobTimeline - 0.25f) * 6.28318) * 0.2f) + 0.8f * (-cosf((flWalkBobTimeline - 0.25f) * 12.56636f) + sinf((flWalkBobTimeline - 0.25f) * 6.28318) * 0.2f)) * 0.15f * m_flWalkBob;//rotation step jolts
+
+	//jump offset
+	bool bInAir = false;
+	if (owner->GetFlags() & FL_ONGROUND)
+	{
+		bInAir = false;
+	}
+	else {
+		bInAir = true;
+	};
+	if (bInAir != m_bJumpModeInAir)
+	{
+		m_bJumpModeInAir = bInAir;
+		if (bInAir)
+		{
+			m_fJumpBlendIn = 0.0f;
+		}
+		else {
+			m_fJumpBlendOut = 0.0f;
+		}
+	}
+	//calculated offset based on velocity, which is faded in and out
+	float jumpOffset = Clamp(owner->GetLocalVelocity().z * -0.003f, -1.0f, 1.0f);
+	if (jumpOffset >= 0.0f)
+	{
+		jumpOffset = sinf((jumpOffset * 3.14159) / 2); //easeOutSine
+	}
+	else {
+		jumpOffset *= -1.0f;
+		jumpOffset = sinf((jumpOffset * 3.14159) / 2); //easeOutSine
+		jumpOffset *= -1.0f;
+	}
+	if (bInAir)
+	{
+		//ease in the jump, ease out the effects of the previous blend out
+		m_fJumpBlendIn += gpGlobals->frametime / 0.2f;
+		m_fJumpBlendIn = Clamp(m_fJumpBlendIn, 0.0f, 1.0f);
+
+		jumpOffset *= -(cosf(3.141590894f * m_fJumpBlendIn) - 1) / 2; //easeInOutSine
+		jumpOffset += m_fJumpBlendOutFinalPrevious * (-(cosf(3.14159 * m_fJumpBlendIn) - 1) / 2); //m_fJumpBlendOutFinalPrevious * easeInOutSine
+
+		//save final jump offset
+		m_fJumpOffsetFinalPrevious = jumpOffset;
+	}
+	else {
+		//ease out the saved final offset
+		m_fJumpBlendOut += gpGlobals->frametime / 1.3f;
+		m_fJumpBlendOut = Clamp(m_fJumpBlendOut, 0.0f, 1.0f);
+
+		jumpOffset = m_fJumpOffsetFinalPrevious;
+		jumpOffset *= 1 - (m_fJumpBlendOut == 0 ? 0 : m_fJumpBlendOut == 1 ? 1 : powf(2, -10 * m_fJumpBlendOut) * sinf((m_fJumpBlendOut * 10 - 0.75) * ((2 * 3.14159f) / 3)) + 1); //inverse easeOutElastic
+
+		m_fJumpBlendOutFinalPrevious = jumpOffset;
+	}
+	//origin += Vector(0, 0, jumpOffset) * 0.8;
+	origin += jumpOffset * forward * -0.2f;
+	origin += jumpOffset * up * 1.0f;
+
 	//crouching: we are ducked or ducking, but we arent ducked AND ducking (which happens when standing up), and we are on the ground not crouch jumping
-	if ((owner->GetFlags() & FL_DUCKING || owner->m_Local.m_bDucking) && !(owner->GetFlags() & FL_DUCKING && owner->m_Local.m_bDucking) && owner->GetFlags() & FL_ONGROUND) {
+	if ((owner->GetFlags() & FL_DUCKING || owner->m_Local.m_bDucking) && !(owner->GetFlags() & FL_DUCKING && owner->m_Local.m_bDucking) && owner->GetFlags() & FL_ONGROUND)
+	{
 		m_flDucking += gpGlobals->frametime / arsenio_vm_crouch_rotatespeed.GetFloat();
 	}
 	else {
@@ -622,6 +757,7 @@ void CBaseViewModel::CalcViewModelBasePose(Vector& origin, QAngle& angles, CBase
 	angles += QAngle(0.0f, 0.0f, arsenio_vm_crouch_angle.GetFloat()) * flDuckingEased;
 	origin += right * arsenio_vm_crouch_offset.GetFloat() * flDuckingEased;
 }
+
 
 
 void CBaseViewModel::CalcViewModelCollision(Vector& origin, QAngle& angles, CBasePlayer* owner)

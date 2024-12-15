@@ -1634,6 +1634,7 @@ void CBaseEntity::FireBullets( const FireBulletsInfo_t &info )
 #endif
 
 
+
 		int rumbleEffect = pPlayer->GetActiveWeapon()->GetRumbleEffect();
 
 

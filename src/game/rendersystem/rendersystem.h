@@ -21,6 +21,16 @@ public:
 	virtual void EndFrame();
 
 
+
+	void BuildViewMatrix(const CViewSetup& view, VMatrix& matview);
+	void BuildProjMatrix(const CViewSetup& view, VMatrix& matproj);
+
+
+#if !defined (CLIENT_DLL)
+	CUtlVector<IRenderSystem_Renderable*> m_Renderables;
+	CUtlStack<CViewSetup> m_ViewStack;
+#endif
+
 	virtual void PushRenderable(IRenderSystem_Renderable* pRenderable);
 #if !defined (CLIENT_DLL)
 	virtual const CViewSetup& GetViewSetup() { return m_ViewStack.Top(); };
@@ -28,16 +38,9 @@ public:
 private:
 	void DrawRenderables();
 
-	void BuildViewMatrix(const CViewSetup& view, VMatrix& matview);
-	void BuildProjMatrix(const CViewSetup& view, VMatrix &matproj);
 
-	void Push3DView(const CViewSetup& view);
 	void PopView();
 
-#if !defined (CLIENT_DLL)
-	CUtlVector<IRenderSystem_Renderable*> m_Renderables;
-	CUtlStack<CViewSetup> m_ViewStack;
-#endif
 };
 
 

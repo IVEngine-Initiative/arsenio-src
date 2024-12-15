@@ -17,6 +17,7 @@
 #include "rumble_shared.h"
 #include "gamestats.h"
 #include "particle_parse.h" // BREADMAN - particle muzzle
+#include "actual_bullet.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -32,6 +33,8 @@ ConVar arsenio_mp5k_min_spread( "arsenio_mp5k_min_spread", "0.015", FCVAR_NONE, 
 ConVar arsenio_mp5k_max_spread( "arsenio_mp5k_max_spread", "0.075", FCVAR_NONE, "MP5K maximum fire cone vector component" );
 ConVar arsenio_mp5k_burst_cycle_rate( "arsenio_mp5k_burst_cycle_rate", "0.2", FCVAR_NONE, "MP5K maximum fire cone vector component" );
 ConVar arsenio_mp5k_debug( "arsenio_mp5k_debug", "0", FCVAR_NONE, "Log messages to console about the MP5K spread" );
+
+extern ConVar bullet_speed;
 
 class CWeaponMP5K : public CHLSelectFireMachineGun
 {
@@ -420,7 +423,9 @@ void CWeaponMP5K::BurstAttack( int burstSize, float cycleRate, int spentAmmoModi
 	info.m_flDistance = MAX_TRACE_LENGTH;
 	info.m_iAmmoType = m_iPrimaryAmmoType;
 	info.m_iTracerFreq = 1;
-	FireBullets(info);
+	info.m_pAttacker = GetOwnerEntity();
+	//FireBullets(info);
+	FireActualBullet(info, bullet_speed.GetFloat(), GetTracerType());
 
 	// Update last attack time - need to do this after calculating weapon spread
 	m_flLastPrimaryAttack = gpGlobals->curtime;
