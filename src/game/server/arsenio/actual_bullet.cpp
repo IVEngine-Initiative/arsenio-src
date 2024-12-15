@@ -57,8 +57,8 @@ void CActualBullet::Think(void)
         info2.m_iTracerFreq = 0;
         GetOwnerEntity()->FireBullets(info2);
 
-        // Play impact sound when the bullet hits something
-        EmitSound("Tile.BulletImpact");  // Replace with impact sound (or a generic hit sound)
+
+        EmitSound("Tile.BulletImpact");  
 
         Stop();
     }
