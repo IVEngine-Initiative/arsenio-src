@@ -2201,6 +2201,7 @@ void CBaseCombatWeapon::ItemPostFrame( void )
 			}
 
 			PrimaryAttack();
+			IsFiring = true;
 
 			if ( AutoFiresFullClip() )
 			{
@@ -2221,6 +2222,7 @@ void CBaseCombatWeapon::ItemPostFrame( void )
 		// reload when reload is pressed, or if no buttons are down and weapon is empty.
 		Reload();
 		m_fFireDuration = 0.0f;
+		IsFiring = false;
 	}
 
 	// -----------------------
@@ -2231,6 +2233,7 @@ void CBaseCombatWeapon::ItemPostFrame( void )
 		// no fire buttons down or reloading
 		if ( !ReloadOrSwitchWeapons() && ( m_bInReload == false ) )
 		{
+			IsFiring = false;
 			WeaponIdle();
 		}
 	}
