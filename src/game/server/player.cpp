@@ -4659,7 +4659,7 @@ void CBasePlayer::PostThink()
 	{
 	#ifdef ARSENIO
 			// Centered at the bottom of the screen
-			debugoverlay->AddScreenTextOverlay(0.5f, 0.95f, 0.0f, 0, 255, 255, 255, CFmtStr("ARSENIO 2044 NOVEMBER 2024 ALPHA."));
+			debugoverlay->AddScreenTextOverlay(0.5f, 0.95f, 0.0f, 0, 255, 255, 255, CFmtStr("ARSENIO 2044 DECEMBER 2024 ALPHA."));
 	#endif
 
 	}
