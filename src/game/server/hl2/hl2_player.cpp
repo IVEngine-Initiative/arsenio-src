@@ -91,7 +91,7 @@ extern int gEvilImpulse101;
 ConVar sv_autojump( "sv_autojump", "0" );
 
 ConVar hl2_walkspeed( "hl2_walkspeed", "0" );
-ConVar hl2_normspeed( "hl2_normspeed", "110" );
+ConVar hl2_normspeed( "hl2_normspeed", "190" );
 ConVar hl2_sprintspeed( "hl2_sprintspeed", "320" );
 ConVar hl2_incapspeed( "hl2_incapspeed", "150" );
 #ifdef ARSENIO
@@ -184,6 +184,8 @@ static impactdamagetable_t gCappedPlayerImpactDamageTable =
 	320.0f,		// min velocity for player speed to cause damage
 
 };
+
+
 
 // Flashlight utility
 bool g_bCacheLegacyFlashlightStatus = true;
@@ -508,8 +510,9 @@ void CHL2_Player::Precache( void )
 	PrecacheScriptSound( "Player.Die" );
 #ifdef ARSENIO
 	PrecacheModel("models/barney.mdl");
+#ifdef ARSENIO_OLD
 	PrecacheModel("models/weapons/arms/v_arms_gambler_new.mdl");
-
+#endif
 	PrecacheModel("models/weapons/ez2/v_kick.mdl");
 
 	PrecacheScriptSound("Player.Woosh");
@@ -1468,8 +1471,9 @@ void CHL2_Player::Spawn(void)
 		RemoveEffects(EF_NODRAW);
 	}
 
+#ifdef ARSENIO_OLD
 	GetViewModel(1)->SetModel("models/weapons/arms/v_arms_gambler_new.mdl");
-
+#endif
 	CreateSounds();
 
 #endif

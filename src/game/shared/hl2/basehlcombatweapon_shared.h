@@ -91,7 +91,8 @@ protected:
 
 private:
 
-	float				m_flNextFidgetTime;
+	float			m_flNextFidgetTime;
+	float			m_flLowerTime; 
 
 
 

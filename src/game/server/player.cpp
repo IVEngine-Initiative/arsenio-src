@@ -512,7 +512,7 @@ void CBasePlayer::CreateViewModel(int index /*=0*/)
 	}
 }
 
-#ifdef ARSENIO
+#ifdef ARSENIO_OLD
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
@@ -5196,7 +5196,7 @@ void CBasePlayer::Spawn(void)
 
 	CreateViewModel();
 
-	#ifdef ARSENIO
+	#ifdef ARSENIO_OLD
 	CreateHandModel();
 	#endif
 
@@ -6558,20 +6558,14 @@ void CBasePlayer::CheatImpulseCommands(int iImpulse)
 		GiveNamedItem("weapon_glock");
 		GiveNamedItem("weapon_shotgun");
 		GiveNamedItem("weapon_mp5k");
-		//GiveNamedItem("weapon_mp99k");
 		GiveNamedItem("weapon_50cal"); 
 		GiveNamedItem("weapon_357");
 		GiveNamedItem("weapon_crossbow");
-		GiveNamedItem("weapon_pro836");
+		GiveNamedItem("weapon_blexure");
 		GiveNamedItem("weapon_gauss");
 		GiveNamedItem("weapon_addamm557");
 		GiveNamedItem("weapon_egar");
-		GiveNamedItem("weapon_ar3");
 		GiveNamedItem("weapon_mobileturret");
-		GiveNamedItem("weapon_knd12");
-		GiveNamedItem("weapon_jshot");
-		GiveNamedItem("weapon_striker");
-		GiveNamedItem("weapon_revolver_dr");
 #endif
 //  EXPANSION PACK (1?) WEAPONS
 #ifdef  DR

@@ -10,6 +10,7 @@
 #include "hl2_player_shared.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
 #include "engine/IEngineSound.h"
+#include "in_buttons.h" 
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -115,7 +116,22 @@ void CBaseHLCombatWeapon::ItemHolsterFrame(void)
 	if (GetOwner()->GetActiveWeapon() == this)
 		return;
 
-	// If it's been longer than three seconds, reload
+	// Detect the "use" key press (IN_USE represents the use key)
+	CHL2_Player* pPlayer = assert_cast<CHL2_Player*>(GetOwner());
+	if (pPlayer && (pPlayer->m_nButtons & IN_USE) && !m_bLowered)
+	{
+		// Lower the weapon if it's not already lowered
+		Lower();
+		m_flLowerTime = gpGlobals->curtime + 1.0f; // Lower time lasts 1 second
+	}
+
+	// If the weapon has been lowered for 1 second, raise it back up
+	if (m_bLowered && gpGlobals->curtime >= m_flLowerTime)
+	{
+		Ready(); // Raise the weapon after 1 second
+	}
+
+	// If it's been longer than the reload time, reload
 	if ((gpGlobals->curtime - m_flHolsterTime) > sk_auto_reload_time.GetFloat())
 	{
 		// Just load the clip with no animations

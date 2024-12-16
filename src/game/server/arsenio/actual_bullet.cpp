@@ -40,9 +40,9 @@ void CActualBullet::Think(void)
     }
 
 
-    if (gpGlobals->curtime - GetLastThink() < 0.1f)  
+    if (gpGlobals->curtime - GetLastThink() < 0.1f)
     {
-        EmitSound("FX_RicochetSound.Ricochet");  
+        EmitSound("FX_RicochetSound.Ricochet");
     }
 
     if (tr.fraction != 1.0)
@@ -58,7 +58,7 @@ void CActualBullet::Think(void)
         GetOwnerEntity()->FireBullets(info2);
 
 
-        EmitSound("Tile.BulletImpact");  
+        EmitSound("Tile.BulletImpact");
 
         Stop();
     }

@@ -23,7 +23,7 @@ public:
 };
 
 ///so this is the actual bullet creation function.
-inline void FireActualBullet(FireBulletsInfo_t &info, int iSpeed, const char* tracertype)
+inline void FireActualBullet(FireBulletsInfo_t& info, int iSpeed, const char* tracertype)
 {
 	if (!info.m_pAttacker)
 	{
@@ -40,7 +40,7 @@ inline void FireActualBullet(FireBulletsInfo_t &info, int iSpeed, const char* tr
 		Vector vecShotDir = vecShot.Normalized();
 		trace_t tr;
 		UTIL_TraceLine(info.m_vecSrc, info.m_vecSrc + (vecShotDir * MAX_TRACE_LENGTH), MASK_SHOT, info.m_pAttacker, COLLISION_GROUP_NONE, &tr);
-		CActualBullet *pBullet = (CActualBullet*)CBaseEntity::Create("actual_bullet", info.m_vecSrc, vec3_angle, info.m_pAttacker);
+		CActualBullet* pBullet = (CActualBullet*)CBaseEntity::Create("actual_bullet", info.m_vecSrc, vec3_angle, info.m_pAttacker);
 		pBullet->m_vecDir = vecShotDir;
 		pBullet->m_Speed = iSpeed;
 		pBullet->SetOwnerEntity(info.m_pAttacker);
