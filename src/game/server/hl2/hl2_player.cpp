@@ -753,7 +753,7 @@ void CHL2_Player::EquipExo(bool bPlayEffects)
 	}
 #endif
 
-#ifdef ARSENIO
+#ifdef ARSENIO_OLD
 
 	IGameEvent* pEvent = gameeventmanager->CreateEvent("instructor_exo");
 
@@ -763,7 +763,7 @@ void CHL2_Player::EquipExo(bool bPlayEffects)
 		gameeventmanager->FireEvent(pEvent);
 	}
 #endif
-	Warning("ERROR: Did Arsenio pick up the ExoSuit or did he not?");
+	// Warning("ERROR: Did Arsenio pick up the ExoSuit or did he not?");
 #ifndef AR
 	Error("Arsenio 3044 has encountered an error and will now close. Please check the log files for more info .");
 #endif
