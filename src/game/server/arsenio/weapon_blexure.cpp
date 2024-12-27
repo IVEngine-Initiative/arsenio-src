@@ -305,14 +305,11 @@ bool CWeaponBlexure::Reload( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CWeaponBlexure::AddViewKick( void )
+void CWeaponBlexure::AddViewKick(void)
 {
-#define	EASY_DAMPEN			2.5f	// Yes.
-#define	MAX_VERTICAL_KICK	11.0f	//Degrees - was 1.0
-#define	SLIDE_LIMIT			2.0f	//Seconds - was 2.0
-
-	// Credit Breadman for the viewkick, btw E:Z 2 looks really good!
-
+#define	EASY_DAMPEN			0.5f
+#define	MAX_VERTICAL_KICK	1.0f	//Degrees
+#define	SLIDE_LIMIT			2.0f	//Seconds
 
 	//Get the view kick
 	CBasePlayer* pPlayer = ToBasePlayer(GetOwner());
